@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>12 Стульев</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="row">
+        <div class="col-md-12">
+            <h1> Мебель </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th> Наименование </th>
+                    <th> Цена </th>
+                    <th> Количество </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in items" :key="item.id">
+                    <td><span> {{ item.name }} </span></td>
+                    <td><span> {{ item.price }} ₽ </span></td>
+                    <td><span> {{ item.quantity }} </span></td>
+                    <td><button 
+                        type="button" 
+                        class="btn btn-dark" 
+                        @click="addItem(item)"
+                        >Добавить</button></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <h2>Карзина</h2>
+        <div class="col-md-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th> Наименование </th>
+                    <th> Цена</th>
+                    <th> Количество </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in cart.items" :key="item.id">
+                    <td><span> {{ item.name }} </span></td>
+                    <td><span> {{ item.price }} ₽ </span></td>
+                    <td><span> {{ item.quantity }} </span></td>
+                    <td><button 
+                        type="button" 
+                        class="btn btn-dark" 
+                        @click="deleteItem(item)"
+                        >Удалить</button></td>
+                </tr>
+                <tr>
+                    <td><span> <strong>Всего</strong> </span></td>
+                    <td><span> {{ cart.totalPrice }} ₽ </span></td>
+                    <td><span> {{ cart.totalCount }} </span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            items: [],
+            errors: [],
+            cart: {
+                items: [],
+                totalCount: 0,
+                totalPrice: 0
+            }
+        },
+        beforeCreate() {
+            axios.get("/api/items")
+            .then(response => {
+                this.items = response.data;
+                console.log(response.data)
+            })
+            .catch(error => {
+                this.errors.push(error)
+            })
+        },
+        methods: {
+            addItem(item) {
+
+                if (item.quantity <= 0) {
+                    return
+                }
+
+                let found = this.cart.items.find(
+                    product => product.id === item.id
+                )
+
+                if (found) {
+                    found.quantity++
+                } else {
+                    const insert = JSON.parse(JSON.stringify(item))
+                    insert.quantity = 1
+                    this.cart.items.push(insert)
+                }
+
+                item.quantity--
+                this.cart.totalCount++
+                this.cart.totalPrice += item.price
+            },
+            deleteItem(item) {
+                let found = this.items.find(
+                    product => product.id === item.id
+                )
+                
+                if (item.quantity != 1) {
+                    item.quantity--
+                } else {
+                    var removeIndex = this.cart.items.findIndex(x => x.id === item.id)
+                    this.cart.items.splice(removeIndex, 1)
+                }
+
+                found.quantity++
+                this.cart.totalCount--
+                this.cart.totalPrice -= item.price
+
+            }
+        }
+    })
+
+</script>
+</html>
