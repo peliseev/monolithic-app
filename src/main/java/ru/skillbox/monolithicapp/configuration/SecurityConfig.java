@@ -41,16 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public RememberMeAuthenticationFilter authenticationFilter() throws Exception {
         return new RememberMeAuthenticationFilter(authenticationManagerBean(), tokenBasedRememberMeServices());
     }
-    /*
-        Error creating bean with name 'tokenBasedRememberMeServices' defined in class path resource [ru/skillbox/monolithicapp/configuration/SecurityConfig.class]:
-        Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException:
-        Failed to instantiate [org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices]:
-        Circular reference involving containing bean 'securityConfig' - consider declaring the factory method as static for independence from its containing instance.
-        Factory method 'tokenBasedRememberMeServices' threw exception; nested exception is java.lang.IllegalArgumentException: UserDetailsService cannot be null
-     */
 
     @Bean
-    @DependsOn("customerService")
     public TokenBasedRememberMeServices tokenBasedRememberMeServices() {
         return new TokenBasedRememberMeServices("secret", customerService);
     }
