@@ -46,10 +46,9 @@ public class OrderController extends BaseController {
 
     @PostMapping("order")
     public ResponseEntity<?> createOrder(@RequestBody List<ItemView> items) {
-        if (orderService.createOrder(items)) {
-            return ResponseEntity.ok("Order created");
-        }
-        return ResponseEntity.ok("Something got wrong");
+        return orderService.createOrder(items) ?
+                ResponseEntity.ok("Order created") :
+                ResponseEntity.ok("Something got wrong");
     }
 
 }
