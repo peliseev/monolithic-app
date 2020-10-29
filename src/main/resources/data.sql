@@ -1,3 +1,13 @@
+INSERT INTO role (name) values
+    ('ROLE_USER'),
+    ('ROLE_ADMIN');
+
+INSERT INTO customer (username, password, first_name, last_name, email, address)
+values ('admin', '$2a$10$9EZ587XD1LtjfZpR6tJ9wecJcDmN12q3tekU3zRajtLkTK0Ve9R.S', 'Василий', 'Иванов', 'vasya@mail.ru', 'hohoho');
+
+INSERT INTO CUSTOMER_ROLES(username, role_name)
+values ('admin', 'ROLE_ADMIN');
+
 INSERT INTO item (name, price, quantity) VALUES
     ('Стул', 300, 2),
     ('Стол', 500, 5),

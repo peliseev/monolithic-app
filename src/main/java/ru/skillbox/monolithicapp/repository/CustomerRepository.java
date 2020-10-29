@@ -6,6 +6,5 @@ import ru.skillbox.monolithicapp.entity.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
-
-    Customer findByFirstNameAndLastName(String firstName, String lastName);
+    Customer findByUsername(String username);
 }

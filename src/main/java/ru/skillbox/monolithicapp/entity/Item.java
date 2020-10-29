@@ -30,7 +30,7 @@ public class Item {
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "items")
-    private Set<Order> orders = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
+    private Set<OrderItem> orders = new HashSet<>();
 
 }

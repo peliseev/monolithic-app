@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 @RestController
 public class OrderController extends BaseController {
 
-    private ItemRepository itemRepository;
-    private OrderService orderService;
+    private final ItemRepository itemRepository;
+    private final OrderService orderService;
 
     public OrderController(ItemRepository itemRepository, OrderService orderService) {
         this.itemRepository = itemRepository;

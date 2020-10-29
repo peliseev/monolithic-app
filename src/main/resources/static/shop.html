@@ -68,6 +68,13 @@
                 </tr>
                 </tbody>
             </table>
+            <button 
+                type="button"
+                class="btn btn-primary"
+                @click="createOrder"
+            > Оформить заказ </button>
+            <h3 v-if="orderCreated">Заказ создан!</h3>
+            <h3 v-if="orderError">Что-то пошло не так. Попробуйте позже.</h3>
         </div>
     </div>
 </div>
@@ -83,13 +90,14 @@
                 items: [],
                 totalCount: 0,
                 totalPrice: 0
-            }
+            },
+            orderCreated: false,
+            orderError: false
         },
         beforeCreate() {
             axios.get("/api/items")
             .then(response => {
                 this.items = response.data;
-                console.log(response.data)
             })
             .catch(error => {
                 this.errors.push(error)
@@ -134,6 +142,11 @@
                 this.cart.totalCount--
                 this.cart.totalPrice -= item.price
 
+            },
+            createOrder() {
+                axios.post("/api/order", this.cart.items)
+                    .then(response => response.data ? this.orderCreated = true : this.orderError = true)
+                    .catch(error => this.orderError = true)
             }
         }
     })
