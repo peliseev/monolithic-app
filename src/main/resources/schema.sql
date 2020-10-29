@@ -31,6 +31,7 @@ CREATE TABLE orders (
 	id INT AUTO_INCREMENT  PRIMARY KEY,
 	customer_id INT NOT NULL,
 	status VARCHAR(20) NOT NULL,
+	total_price INT NOT NULL,
 	foreign key (customer_id) references customer(id)
 );
 

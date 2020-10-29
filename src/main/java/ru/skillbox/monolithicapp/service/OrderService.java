@@ -11,6 +11,7 @@ import ru.skillbox.monolithicapp.repository.ItemRepository;
 import ru.skillbox.monolithicapp.repository.OrderRepository;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ public class OrderService {
 
         List<OrderItem> orderItems = new ArrayList<>();
         Order order = new Order();
+        BigDecimal totalPrice = new BigDecimal(0);
 
         for (Item dbItem : dbItems) {
             int id = dbItem.getId();
@@ -54,12 +56,14 @@ public class OrderService {
             dbItem.setQuantity(dbItem.getQuantity() - itemsInCart);
             orderItems.add(new OrderItem(order, dbItem, itemsInCart));
 
+            totalPrice = totalPrice.add(dbItem.getPrice().multiply(BigDecimal.valueOf(itemsInCart)));
         }
 
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         order.setItems(orderItems);
         order.setCustomer(customer);
+        order.setTotalPrice(totalPrice);
         order.setStatus(ORDER_CREATED);
 
         itemRepository.saveAll(dbItems);

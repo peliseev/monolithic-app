@@ -3,6 +3,7 @@ package ru.skillbox.monolithicapp.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "order_item")
 @IdClass(OrderItem.OrderItemId.class)
+@ToString(exclude = {"order", "item"})
 public class OrderItem {
 
     @Id

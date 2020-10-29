@@ -3,6 +3,7 @@ package ru.skillbox.monolithicapp.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +28,9 @@ public class Order {
 
     @Column(name = "status",  nullable = false)
     private String status;
+
+    @Column(name = "total_price",  nullable = false)
+    private BigDecimal totalPrice;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderItem> items = new LinkedList<>();
