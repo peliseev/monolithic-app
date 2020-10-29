@@ -39,7 +39,7 @@ public class Customer implements UserDetails {
             joinColumns = { @JoinColumn(name = "username", nullable = false, updatable = false) },
             inverseJoinColumns = { @JoinColumn(name = "role_name", nullable = false, updatable = false) }
     )
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

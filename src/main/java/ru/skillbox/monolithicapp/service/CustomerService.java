@@ -13,16 +13,22 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 import org.springframework.stereotype.Service;
 import ru.skillbox.monolithicapp.entity.Customer;
 import ru.skillbox.monolithicapp.entity.security.Role;
+import ru.skillbox.monolithicapp.exception.CustomerAlreadyExistException;
+import ru.skillbox.monolithicapp.exception.PasswordDoestMatchException;
+import ru.skillbox.monolithicapp.model.CustomerView;
+import ru.skillbox.monolithicapp.model.ERole;
 import ru.skillbox.monolithicapp.model.LogInView;
 import ru.skillbox.monolithicapp.repository.CustomerRepository;
 import ru.skillbox.monolithicapp.repository.RoleRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.Objects;
 
 @Service("customerService")
+@Transactional
 public class CustomerService implements UserDetailsService {
 
     private final CustomerRepository customerRepository;
@@ -52,27 +58,44 @@ public class CustomerService implements UserDetailsService {
         return customer;
     }
 
-    public boolean saveCustomer(Customer customer) {
-        Customer customerFromBD = customerRepository.findByUsername(customer.getUsername());
-        if (customerFromBD != null) {
-            return false;
-        }
-        if (!Objects.equals(customer.getPassword(), customer.getPasswordConfirm())) {
-            return false;
-        }
-        Role userRole = roleRepository.findByName("ROLE_USER");
-        customer.setRoles(Collections.singleton(userRole));
-        customer.setPassword(bcPasswordEncoder.encode(customer.getPassword()));
-        customerRepository.save(customer);
 
-        return true;
-    }
-
-    public void logIn(HttpServletRequest request, HttpServletResponse response, LogInView logInView) {
+    public void logIn(HttpServletRequest request,
+                      HttpServletResponse response,
+                      LogInView logInView) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(logInView.getLogin(), logInView.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         rememberMeServices.onLoginSuccess(request, response, authentication);
+    }
+
+    public void register(CustomerView registrationData) throws CustomerAlreadyExistException, PasswordDoestMatchException {
+        String login = registrationData.getLogin();
+        Customer customerFromDB = customerRepository.findByUsername(login);
+        if (customerFromDB != null) {
+            throw new CustomerAlreadyExistException(String.format("Client with login %s already exist", login));
+        }
+        if (!Objects.equals(registrationData.getPassword(), registrationData.getPasswordConfirm())) {
+            throw new PasswordDoestMatchException("Passwords doesn't match!");
+        }
+        Role role = roleRepository.findByName(ERole.ROLE_USER);
+
+        Customer customerToSave = fromViewToCustomer(registrationData);
+        customerToSave.setRoles(Collections.singleton(role));
+
+        customerRepository.save(customerToSave);
+    }
+
+    private Customer fromViewToCustomer(CustomerView customerView) {
+        Customer customer = new Customer();
+
+        customer.setPassword(bcPasswordEncoder.encode(customerView.getPassword()));
+        customer.setAddress(customerView.getAddress());
+        customer.setEmail(customerView.getEmail());
+        customer.setFirstName(customerView.getFirstName());
+        customer.setLastName(customerView.getFirstName());
+        customer.setUsername(customerView.getLogin());
+
+        return customer;
     }
 }

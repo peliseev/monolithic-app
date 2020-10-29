@@ -16,7 +16,10 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         String path = request.getContextPath();
-        if (path.startsWith("/api/login") || path.startsWith("/login")) {
+        if (    path.startsWith("/api/login") ||
+                path.startsWith("/login") ||
+                path.startsWith("/registration") ||
+                path.startsWith("/api/register")) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }
         RequestDispatcher requestDispatcher = request.getRequestDispatcher("/login.html");

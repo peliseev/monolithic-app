@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import ru.skillbox.monolithicapp.entity.Customer;
+import ru.skillbox.monolithicapp.model.ERole;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -23,14 +24,10 @@ public class Role implements GrantedAuthority {
     private Long id;
 
     @Column(name = "name")
-    private String name;
-
-    @Transient
-    @ManyToMany(mappedBy = "role")
-    private Set<Customer> customers;
+    private ERole name;
 
     @Override
     public String getAuthority() {
-        return getName();
+        return getName().name();
     }
 }

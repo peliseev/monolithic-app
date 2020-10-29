@@ -1,0 +1,163 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Логин</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+.login-form {
+    width: 340px;
+    margin: 50px auto;
+  	font-size: 15px;
+}
+.form {
+    margin-bottom: 15px;
+    background: #f7f7f7;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+}
+.login-form h2 {
+    margin: 0 0 15px;
+}
+.form-control, .btn {
+    min-height: 38px;
+    border-radius: 2px;
+}
+.btn {
+    font-size: 15px;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+<div class="login-form" id="app">
+    <div class="form">
+        <h2 class="text-center">Регистрация</h2>
+        <div class="form-group">
+            <input  type="text"
+                    class="form-control"
+                    placeholder="Логин"
+                    required="required"
+                    v-model="registration.login"
+                    :disabled="success"
+            >
+        </div>
+        <div class="form-group">
+            <input  type="password"
+                    class="form-control"
+                    placeholder="Пароль"
+                    required="required"
+                    v-model="registration.password"
+                    :disabled="success"
+            >
+        </div>
+        <div class="form-group">
+            <input  type="password"
+                    class="form-control"
+                    placeholder="Подтверждение пароля"
+                    required="required"
+                    v-model="registration.passwordConfirm"
+                    :disabled="success"
+            >
+        </div>
+        <br>
+        <div class="form-group">
+            <input  type="text"
+                    class="form-control"
+                    placeholder="Имя"
+                    required="required"
+                    v-model="registration.firstName"
+                    :disabled="success"
+            >
+        </div>
+        <div class="form-group">
+            <input  type="text"
+                    class="form-control"
+                    placeholder="Фамилия"
+                    required="required"
+                    v-model="registration.lastName"
+                    :disabled="success"
+            >
+        </div>
+        <div class="form-group">
+            <input  type="email"
+                    class="form-control"
+                    placeholder="E-Mail"
+                    required="required"
+                    v-model="registration.email"
+                    :disabled="success"
+            >
+        </div>
+        <div class="form-group">
+            <input  type="text"
+                    class="form-control"
+                    placeholder="Адрес для доставки"
+                    required="required"
+                    v-model="registration.address"
+                    :disabled="success"
+            >
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary btn-block"
+                    @click="register"
+                    :disabled="success"
+            >Регистрация</button>
+        </div>
+    </div>
+    <div class="d-flex flex-column" v-if="success">
+        <div class="alert alert-primary" authorities="alert" align="center">Вы успешно прошли регистрацию и будете направлены на страницу входа через {{sec}} секунды!</div>
+    </div>
+    <div class="alert alert-danger" authorities="alert" align="center" v-if="error">Что-то пошло не так. Попробуйте позже</div>
+    <div class="alert alert-danger" authorities="alert" align="center" v-if="error && errorMessage">Error: {{ errorMessage }}</div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            registration: {
+                login: null,
+                password: null,
+                passwordConfirm: null,
+                firstName: null,
+                lastName: null,
+                email: null,
+                address: null
+            },
+            success: false,
+            error: false,
+            errorMessage: null,
+            sec: 3
+        },
+        methods: {
+            register() {
+                if (this.registration.password == this.registration.passwordConfirm) {
+                    axios.post("/api/register", this.registration)
+                    .then(response => {
+                        if (response.status == 200) {
+                            this.success = true
+                            this.error = false
+                            setInterval(() => {
+                                this.sec--
+                            }, 1000);
+                            setTimeout(() => 
+                            window.location.href = "/", 
+                            3000)
+                        } else {
+                            this.error = true
+                            this.errorMessage = rsponse.data
+                    }})
+                .catch(err => this.error = true)
+                } else {
+                    this.error = true
+                    this.errorMessage = "Пароли не совпадают"
+                }
+            }
+        }
+    })
+
+</script>
+</html>
