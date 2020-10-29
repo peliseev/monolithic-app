@@ -37,21 +37,27 @@ public class OrderService {
                 .collect(Collectors.toMap(ItemView::getId, Function.identity()));
 
         List<Item> dbItems = itemRepository.findAllById(itemViewMap.keySet());
+
         List<OrderItem> orderItems = new ArrayList<>();
         Order order = new Order();
 
         for (Item dbItem : dbItems) {
             int id = dbItem.getId();
             ItemView itemView = itemViewMap.get(id);
+
             int itemsInCart = itemView.getQuantity();
+
             if (itemsInCart > dbItem.getQuantity()) {
                 return false;
             }
-            dbItem.setQuantity(dbItem.getQuantity() - itemView.getQuantity());
+
+            dbItem.setQuantity(dbItem.getQuantity() - itemsInCart);
             orderItems.add(new OrderItem(order, dbItem, itemsInCart));
+
         }
 
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         order.setItems(orderItems);
         order.setCustomer(customer);
         order.setStatus(ORDER_CREATED);
