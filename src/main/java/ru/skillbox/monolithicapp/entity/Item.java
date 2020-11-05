@@ -16,6 +16,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class Item {
 
+    public Item(String name, int price, int quantity) {
+        this.name = name;
+        this.price = BigDecimal.valueOf(price);
+        this.quantity = quantity;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

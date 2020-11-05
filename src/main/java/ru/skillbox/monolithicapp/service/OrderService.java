@@ -6,6 +6,7 @@ import ru.skillbox.monolithicapp.entity.Customer;
 import ru.skillbox.monolithicapp.entity.Item;
 import ru.skillbox.monolithicapp.entity.Order;
 import ru.skillbox.monolithicapp.entity.OrderItem;
+import ru.skillbox.monolithicapp.exception.NotEnoughItemsException;
 import ru.skillbox.monolithicapp.model.ItemView;
 import ru.skillbox.monolithicapp.repository.ItemRepository;
 import ru.skillbox.monolithicapp.repository.OrderRepository;
@@ -33,7 +34,7 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public boolean createOrder(List<ItemView> items) {
+    public void createOrder(List<ItemView> items) {
         Map<Integer, ItemView> itemViewMap = items.stream()
                 .collect(Collectors.toMap(ItemView::getId, Function.identity()));
 
@@ -50,7 +51,7 @@ public class OrderService {
             int itemsInCart = itemView.getQuantity();
 
             if (itemsInCart > dbItem.getQuantity()) {
-                return false;
+                throw new NotEnoughItemsException("Not enough items");
             }
 
             dbItem.setQuantity(dbItem.getQuantity() - itemsInCart);
@@ -69,6 +70,5 @@ public class OrderService {
         itemRepository.saveAll(dbItems);
         orderRepository.save(order);
 
-        return true;
     }
 }

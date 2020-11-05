@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>12 Стульев</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="row">
+        <div class="col-md-12">
+            <h1> Склад </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th> Наименование </th>
+                    <th> Цена </th>
+                    <th> Количество </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in items" :key="item.id">
+                    <td><input  v-model="item.name" :disabled="item.disabled"></td>
+                    <td><input v-model="item.price" :disabled="item.disabled"></td>
+                    <td><input v-model="item.quantity" :disabled="item.disabled"></td>
+                    <td><button 
+                        type="button" 
+                        class="btn btn-dark" 
+                        @click="item.disabled=!item.disabled"
+                        >Изменить</button></td>                    
+                        <td><button 
+                        type="button" 
+                        class="btn btn-dark" 
+                        @click="deleteItem(item)"
+                        >Удалить</button></td>                        
+                        <td><button 
+                        type="button" 
+                        class="btn btn-dark" 
+                        @click="saveItem(item)"
+                        v-if="!item.saved"
+                        >Сохранить</button></td>
+                        <td><span
+                        style="color: brown;"
+                        v-if="item.error"
+                        >Ошибка! Проверьте данные.</span></td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-primary btn-block"
+                    @click="addItem"
+            >Добавить товар</button>            
+            <button class="btn btn-primary btn-block"
+                    @click="saveAll"
+            >Сохранить изменения</button>
+            <div class="alert alert-danger" authorities="alert" align="center" v-if="error">Что-то пошло не так. Попробуйте позже</div>
+        </div>
+    </div>
+    </div>
+</div>
+</body>
+<script>
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            items: [],
+            error: false
+        },
+        beforeCreate() {
+            axios.get("/api/items")
+            .then(response => {
+                this.items = response.data.map(item => ({ ...item, disabled: true, saved: true }));
+            })
+        },
+        methods: {
+            addItem() {
+                this.items.push({
+                    id: null,
+                    name: null,
+                    price: null,
+                    quantity: null,
+                    disabled: false,
+                    saved: false,
+                    error: false
+                })
+            },
+            deleteItem(item) {
+                if (item.id == null) {
+                    var removeIndex = this.items.findIndex(x => x.id === item.id)
+                    this.items.splice(removeIndex, 1)
+                } else {
+                    axios.delete("/api/warehouse/item/" + item.id)
+                        .then(response => {
+                            if (response.status == 200) {
+                                var removeIndex = this.items.findIndex(x => x.id === item.id)
+                                this.items.splice(removeIndex, 1)
+                            } else {
+                                item.error = true
+                            }
+                        })
+                        .catch(error => item.error = true)
+                }
+            },
+            saveItem(item) {
+                let itemToSave = JSON.parse(JSON.stringify(item))
+                delete itemToSave.disabled
+                delete itemToSave.saved
+                axios.post("/api/warehouse/item", itemToSave)
+                    .then(response => {
+                        if (response.status == 200) {
+                            item.error = false
+                            item.disabled = true
+                            item.saved = true
+                        } else {
+                            item.error = true
+                        } 
+                    })
+                    .catch(error => item.error = true)
+            },
+            saveAll() {
+                let itemsToSave = JSON.parse(JSON.stringify(this.items))
+                itemsToSave.forEach(item => {
+                    delete item.saved
+                    delete item.disabled
+                    delete item.error
+                })
+                axios.put("/api/warehouse/items", itemsToSave)
+                    .then(response => {
+                        if (response.status == 200) {
+                            this.items.map(item => {
+                                item.disabled = true
+                                item.error = false
+                                item.saved = true
+                            })
+                        } else {
+                            this.error = true
+                        } 
+                    })
+                    .catch(error => this.items.map(item => {
+                }))
+            }
+        }
+    })
+
+</script>
+</html>

@@ -2,11 +2,9 @@ package ru.skillbox.monolithicapp.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.skillbox.monolithicapp.entity.Item;
+import ru.skillbox.monolithicapp.exception.NoItemsException;
 import ru.skillbox.monolithicapp.model.ItemView;
 import ru.skillbox.monolithicapp.repository.ItemRepository;
 import ru.skillbox.monolithicapp.service.OrderService;
@@ -15,7 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class OrderController extends BaseController {
+@RequestMapping("api")
+public class OrderController {
 
     private final ItemRepository itemRepository;
     private final OrderService orderService;
@@ -26,7 +25,7 @@ public class OrderController extends BaseController {
     }
 
     @GetMapping("items")
-    public ResponseEntity<?> showItems() {
+    public ResponseEntity<List<ItemView>> showItems() {
         List<Item> items = itemRepository.findAll();
 
         if (CollectionUtils.isEmpty(items)) {
@@ -45,10 +44,9 @@ public class OrderController extends BaseController {
     }
 
     @PostMapping("order")
-    public ResponseEntity<?> createOrder(@RequestBody List<ItemView> items) {
-        return orderService.createOrder(items) ?
-                ResponseEntity.ok("Order created") :
-                ResponseEntity.ok("Something got wrong");
+    public void createOrder(@RequestBody List<ItemView> items) {
+        if (items.isEmpty()) { throw new NoItemsException("Empty list of items"); }
+        orderService.createOrder(items);
     }
 
 }

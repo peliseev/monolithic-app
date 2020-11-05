@@ -72,6 +72,7 @@
                 type="button"
                 class="btn btn-primary"
                 @click="createOrder"
+                :disabled="cartIsEmpty"
             > Оформить заказ </button>
             <h3 v-if="orderCreated">Заказ создан!</h3>
             <h3 v-if="orderError">Что-то пошло не так. Попробуйте позже.</h3>
@@ -102,6 +103,11 @@
             .catch(error => {
                 this.errors.push(error)
             })
+        },
+        computed: {
+            cartIsEmpty() {
+                return this.cart.items.length < 1;
+            }
         },
         methods: {
             addItem(item) {
@@ -145,7 +151,7 @@
             },
             createOrder() {
                 axios.post("/api/order", this.cart.items)
-                    .then(response => response.data ? this.orderCreated = true : this.orderError = true)
+                    .then(response => response.status == 200 ? this.orderCreated = true : this.orderError = true)
                     .catch(error => this.orderError = true)
             }
         }
