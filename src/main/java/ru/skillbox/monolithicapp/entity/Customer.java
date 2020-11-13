@@ -36,10 +36,10 @@ public class Customer implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "customer_roles",
-            joinColumns = { @JoinColumn(name = "username", nullable = false, updatable = false) },
-            inverseJoinColumns = { @JoinColumn(name = "role_name", nullable = false, updatable = false) }
+            joinColumns = { @JoinColumn(name = "customer_id", referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "id") }
     )
-    private Set<Role> roles = new HashSet<>();
+    private Collection<Role> roles = new HashSet<>();
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

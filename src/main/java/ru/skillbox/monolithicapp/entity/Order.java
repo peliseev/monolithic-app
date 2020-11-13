@@ -32,7 +32,7 @@ public class Order {
     @Column(name = "total_price",  nullable = false)
     private BigDecimal totalPrice;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderItem> items = new LinkedList<>();
 
 }

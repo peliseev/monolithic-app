@@ -58,8 +58,7 @@ public class CustomerService implements UserDetailsService {
         return customer;
     }
 
-
-    public void logIn(HttpServletRequest request,
+    public Customer logIn(HttpServletRequest request,
                       HttpServletResponse response,
                       LogInView logInView) {
         Authentication authentication = authenticationManager.authenticate(
@@ -67,6 +66,7 @@ public class CustomerService implements UserDetailsService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         rememberMeServices.onLoginSuccess(request, response, authentication);
+        return (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     public void register(CustomerView registrationData) throws CustomerAlreadyExistException, PasswordDoestMatchException {

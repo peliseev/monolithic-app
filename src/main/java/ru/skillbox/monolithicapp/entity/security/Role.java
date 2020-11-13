@@ -9,7 +9,7 @@ import ru.skillbox.monolithicapp.entity.Customer;
 import ru.skillbox.monolithicapp.model.ERole;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Getter
@@ -24,10 +24,23 @@ public class Role implements GrantedAuthority {
     private Long id;
 
     @Column(name = "name")
+    @Enumerated(EnumType.STRING)
     private ERole name;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "customer_roles",
+            joinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "id")},
+            inverseJoinColumns = { @JoinColumn(name = "customer_id", referencedColumnName = "id")}
+    )
+    private Collection<Customer> customers;
 
     @Override
     public String getAuthority() {
         return getName().name();
+    }
+
+    public ERole getName() {
+        return this.name;
     }
 }

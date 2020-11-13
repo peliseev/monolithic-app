@@ -6,15 +6,20 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        .top-buffer {
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
 <div class="container" id="app">
-    <div class="row">
+    <div class="h-100 row align-items-center">
         <div class="col-md-12">
             <h1> Мебель </h1>
         </div>
     </div>
-    <div class="row">
+    <div class="row align-items-center">
         <div class="col-md-6">
             <table class="table">
                 <thead>
@@ -77,6 +82,9 @@
             <h3 v-if="orderCreated">Заказ создан!</h3>
             <h3 v-if="orderError">Что-то пошло не так. Попробуйте позже.</h3>
         </div>
+    </div>
+    <div class="row top-buffer">
+        <a class="btn btn-info col-md-6" href="/orders.html" authorities="button">Мои заказы</a>
     </div>
 </div>
 </body>
@@ -151,7 +159,18 @@
             },
             createOrder() {
                 axios.post("/api/order", this.cart.items)
-                    .then(response => response.status == 200 ? this.orderCreated = true : this.orderError = true)
+                    .then(response => {
+                        if (response.status == 200) {
+                            this.cart = {
+                                items: [],
+                                totalCount: 0,
+                                totalPrice: 0
+                            }
+                            this.orderCreated = true
+                        } else {
+                            this.orderError = true
+                        }
+                    })
                     .catch(error => this.orderError = true)
             }
         }

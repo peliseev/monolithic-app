@@ -7,6 +7,7 @@ import ru.skillbox.monolithicapp.entity.Item;
 import ru.skillbox.monolithicapp.entity.Order;
 import ru.skillbox.monolithicapp.entity.OrderItem;
 import ru.skillbox.monolithicapp.exception.NotEnoughItemsException;
+import ru.skillbox.monolithicapp.model.CustomerOrderView;
 import ru.skillbox.monolithicapp.model.ItemView;
 import ru.skillbox.monolithicapp.repository.ItemRepository;
 import ru.skillbox.monolithicapp.repository.OrderRepository;
@@ -70,5 +71,29 @@ public class OrderService {
         itemRepository.saveAll(dbItems);
         orderRepository.save(order);
 
+    }
+
+    public List<CustomerOrderView> getOrders() {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Order> orders = orderRepository.getByCustomerId(customer.getId());
+
+        return orders.stream().map(order -> {
+            CustomerOrderView customerOrderView = new CustomerOrderView();
+            customerOrderView.setId(order.getId());
+            customerOrderView.setStatus(order.getStatus());
+            List<OrderItem> orderItems = order.getItems();
+            List<ItemView> itemViews = orderItems.stream().map(OrderService::convertOrderItemToItemView)
+                    .collect(Collectors.toList());
+            customerOrderView.setItems(itemViews);
+            return customerOrderView;
+        }).collect(Collectors.toList());
+
+    }
+
+    private static ItemView convertOrderItemToItemView(OrderItem orderItem) {
+        return new ItemView(orderItem.getItem().getId(),
+                orderItem.getItem().getName(),
+                orderItem.getItem().getPrice().intValue(),
+                orderItem.getCount());
     }
 }

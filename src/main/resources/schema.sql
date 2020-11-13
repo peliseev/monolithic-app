@@ -14,10 +14,10 @@ CREATE TABLE customer (
 );
 
 CREATE TABLE CUSTOMER_ROLES (
-    username VARCHAR(20) NOT NULL,
-    role_name VARCHAR(20) NOT NULL,
-    foreign key (username) references customer(username),
-    foreign key (role_name) references role(name)
+    customer_id VARCHAR(20) NOT NULL,
+    role_id VARCHAR(20) NOT NULL,
+    foreign key (customer_id) references customer(id),
+    foreign key (role_id) references role(id)
 );
 
 CREATE TABLE item (
