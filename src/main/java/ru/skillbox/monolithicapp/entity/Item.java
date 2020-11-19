@@ -18,7 +18,7 @@ public class Item {
 
     public Item(String name, int price, int quantity) {
         this.name = name;
-        this.price = BigDecimal.valueOf(price);
+        this.price = price;
         this.quantity = quantity;
     }
 
@@ -31,7 +31,7 @@ public class Item {
     private String name;
 
     @Column(name = "price", nullable = false)
-    private BigDecimal price;
+    private int price;
 
     @Column(name = "quantity", nullable = false)
     private int quantity;

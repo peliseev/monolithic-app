@@ -1,6 +1,7 @@
 package ru.skillbox.monolithicapp.entity;
 
 import lombok.*;
+import ru.skillbox.monolithicapp.model.EOrderStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -26,11 +27,14 @@ public class Order {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    @Column(name = "customer_id", insertable = false, updatable = false)
+    private int customerId;
+
     @Column(name = "status",  nullable = false)
-    private String status;
+    private EOrderStatus status;
 
     @Column(name = "total_price",  nullable = false)
-    private BigDecimal totalPrice;
+    private int totalPrice;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderItem> items = new LinkedList<>();

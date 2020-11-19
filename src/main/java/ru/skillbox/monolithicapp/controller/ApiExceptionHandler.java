@@ -33,4 +33,14 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(400).body("Такой позиции не существует");
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    protected ResponseEntity<?> handleOrderNotFoundException() {
+        return ResponseEntity.status(400).body("Заказ не найден");
+    }
+
+    @ExceptionHandler(OrderAlreadyPaidException.class)
+    protected ResponseEntity<?> handleOrderAlreadyPaidException() {
+        return ResponseEntity.status(400).body("Заказ уже оплачен");
+    }
+
 }

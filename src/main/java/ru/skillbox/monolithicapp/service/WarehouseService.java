@@ -42,7 +42,7 @@ public class WarehouseService {
                 .map(item -> {
                     Item itemToSave = itemRepository.findById(item.getId()).orElseThrow(ItemNoFoundException::new);
                     itemToSave.setName(item.getName());
-                    itemToSave.setPrice(BigDecimal.valueOf(item.getPrice()));
+                    itemToSave.setPrice(item.getPrice());
                     itemToSave.setQuantity(item.getQuantity());
                     return itemToSave;
                 }).collect(Collectors.toList());
