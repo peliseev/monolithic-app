@@ -43,4 +43,9 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(400).body("Заказ уже оплачен");
     }
 
+    @ExceptionHandler(PaymentFailException.class)
+    protected ResponseEntity<?> handlePaymentFailException() {
+        return ResponseEntity.status(400).body("PAYMENT_FAIL");
+    }
+
 }

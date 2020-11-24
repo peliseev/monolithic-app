@@ -1,5 +1,6 @@
 package ru.skillbox.monolithicapp.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.monolithicapp.model.ItemView;
 import ru.skillbox.monolithicapp.service.WarehouseService;
@@ -17,8 +18,8 @@ public class WarehouseController {
     }
 
     @PostMapping("/item")
-    public void addItem(@RequestBody ItemView itemToAdd) {
-        warehouseService.addItem(itemToAdd);
+    public ResponseEntity addItem(@RequestBody ItemView itemToAdd) {
+        return ResponseEntity.ok(warehouseService.addItem(itemToAdd));
     }
 
     @PutMapping("/items")

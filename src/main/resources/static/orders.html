@@ -7,9 +7,39 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand">12 Стульев</a>
+    <button class="navbar-toggler" 
+            type="button" 
+            data-toggle="collapse" 
+            data-target="#navbarSupportedContent" 
+            aria-controls="navbarSupportedContent" 
+            aria-expanded="false" 
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="shop.html">Магазин </a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Заказы <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="warehouse.html">Склад </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="login.html">Логин </a>
+        </li>
+        </li>
+      </ul>
+    </div>
+</nav>
 <body>
-    <div class="container" id="app">
-        <div class="card" v-for="order in orders" :key="order.id">
+    <div class="container d-flex flex-column" id="app">
+        <div class="card my-4" v-for="order in orders" :key="order.id">
             <div class="card-header d-flex justify-content-between">
                 <h2 class="mb-0">
                     Заказ №{{ order.id }}
@@ -43,12 +73,19 @@
                                 </tr>
                                 </tbody>
                             </table>
-                            <button type="button" 
-                                    class="btn btn-success"
-                                    v-if="order.status == 'ORDER_CREATED'"
-                                    @click="pay(order)">
-                                Оплатить
-                            </button>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <button type="button" 
+                                            class="btn btn-success"
+                                            v-if="order.status == 'ORDER_CREATED'"
+                                            @click="pay(order)">
+                                            Оплатить
+                                    </button>
+                                </div>
+                                <div class="alert alert-danger" role="alert" v-if="order.error">
+                                    Oops!
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -66,8 +103,7 @@
         beforeCreate() {
             axios.get("/api/orders")
             .then(response => {
-                this.orders = response.data;
-                this.orders.map(order => ({...order, show: false}))
+                this.orders = response.data.map(order => ({...order, error: false}));
             })
             .catch(error => {
                 this.errors.push(error)
@@ -78,16 +114,18 @@
                 axios.post("/api/pay", order)
                     .then(response => {
                         if (response.status == 200) {
-                            order = response.data;
-                            console.log("Order: ")
-                            console.log(order)
-                            console.log("Response data: ")
-                            console.log(response.data)
+                            order.status = response.data.status
+                            order.statusText = response.data.statusText
+                            order.error = false
                         } else {
                             order.error = true
                         }
                     })
-                    .catch(error => this.orderError = true)
+                    .catch(error => {
+                        console.log(error.response)
+                        order.error = true
+                        console.log(this.orders)
+                    })
             },
             status(order) {
                 switch (order.status) {
@@ -95,14 +133,14 @@
                         return "alert-primary"
                         break;
                     case "ORDER_PAID":
-                            return "alert-success"
-                            break;
+                        return "alert-success"
+                        break;
                     case "ORDER_DELIVER":
-                            return "alert-info"
-                            break;
+                        return "alert-info"
+                        break;
                     case "ORDER_DELIVERED":
-                            return "alert-dark"
-                            break;
+                        return "alert-dark"
+                        break;
                     default:
                         break;
                 }

@@ -68,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.headers().frameOptions().disable();
+        http.exceptionHandling().accessDeniedPage("/accessDenied.html");
     }
 
 }

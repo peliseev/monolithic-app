@@ -7,7 +7,6 @@ import ru.skillbox.monolithicapp.model.ItemView;
 import ru.skillbox.monolithicapp.repository.ItemRepository;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,12 +20,13 @@ public class WarehouseService {
         this.itemRepository = itemRepository;
     }
 
-    public void addItem(ItemView itemView) {
+    public int addItem(ItemView itemView) {
         Item item = new Item(
                 itemView.getName(),
                 itemView.getPrice(),
                 itemView.getQuantity());
-        itemRepository.save(item);
+        Item savedItem = itemRepository.save(item);
+        return savedItem.getId();
     }
 
     public void updateItems(List<ItemView> items) {
