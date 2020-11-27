@@ -21,7 +21,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("select distinct o from Order o " +
             "join fetch o.items i " +
             "join fetch o.customer " +
-            "join fetch o.courier " +
             "join fetch i.item " +
             "where o.status = :status1 "+
             "or o.status = :status2")

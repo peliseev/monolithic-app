@@ -38,7 +38,6 @@ public class OrderService {
     public void createOrder(List<ItemView> items) {
         Map<Integer, ItemView> itemViewMap = items.stream()
                 .collect(Collectors.toMap(ItemView::getId, Function.identity()));
-
         List<Item> dbItems = itemRepository.findAllById(itemViewMap.keySet());
 
         List<OrderItem> orderItems = new ArrayList<>();
@@ -48,16 +47,12 @@ public class OrderService {
         for (Item dbItem : dbItems) {
             int id = dbItem.getId();
             ItemView itemView = itemViewMap.get(id);
-
             int itemsInCart = itemView.getQuantity();
-
             if (itemsInCart > dbItem.getQuantity()) {
                 throw new NotEnoughItemsException("Not enough items");
             }
-
             dbItem.setQuantity(dbItem.getQuantity() - itemsInCart);
             orderItems.add(new OrderItem(order, dbItem, itemsInCart));
-
             totalPrice = totalPrice + dbItem.getPrice() * itemsInCart;
         }
 
