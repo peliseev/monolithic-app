@@ -119,6 +119,7 @@
                             order.status = response.data.status
                             order.statusText = response.data.statusText
                             order.error = false
+                            this.orders.sort((a, b) => a.status == "ORDER_CREATED" ? -1 : 1)
                         } else {
                             order.error = true
                         }
@@ -149,6 +150,7 @@
             }
         }
     })
+
 
 </script>
 </html>

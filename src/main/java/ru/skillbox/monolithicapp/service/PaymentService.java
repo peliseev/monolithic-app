@@ -45,8 +45,8 @@ public class PaymentService {
         // pay method will be success 80% of time
         boolean success = Math.random() > 0.2;
 
-        return order.getCustomerId() != customer.getId()
-                && order.getStatus() != EOrderStatus.ORDER_CREATED
+        return order.getCustomerId() == customer.getId()
+                && order.getStatus() == EOrderStatus.ORDER_CREATED
                 && success;
     }
 }

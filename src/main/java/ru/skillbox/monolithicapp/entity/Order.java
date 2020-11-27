@@ -35,7 +35,7 @@ public class Order {
     private int customerId;
 
     @Column(name = "courier_id", insertable = false, updatable = false)
-    private int courierId;
+    private Integer courierId;
 
     @Column(name = "status",  nullable = false)
     private EOrderStatus status;
