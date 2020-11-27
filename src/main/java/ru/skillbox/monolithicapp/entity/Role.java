@@ -1,4 +1,4 @@
-package ru.skillbox.monolithicapp.entity.security;
+package ru.skillbox.monolithicapp.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

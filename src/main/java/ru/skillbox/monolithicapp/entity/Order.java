@@ -27,8 +27,15 @@ public class Order {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "courier_id")
+    private Customer courier;
+
     @Column(name = "customer_id", insertable = false, updatable = false)
     private int customerId;
+
+    @Column(name = "courier_id", insertable = false, updatable = false)
+    private int courierId;
 
     @Column(name = "status",  nullable = false)
     private EOrderStatus status;

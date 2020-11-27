@@ -30,6 +30,7 @@ CREATE TABLE item (
 CREATE TABLE orders (
 	id INT AUTO_INCREMENT  PRIMARY KEY,
 	customer_id INT NOT NULL,
+	courier_id INT,
 	status VARCHAR(20) NOT NULL,
 	total_price INT NOT NULL,
 	foreign key (customer_id) references customer(id)

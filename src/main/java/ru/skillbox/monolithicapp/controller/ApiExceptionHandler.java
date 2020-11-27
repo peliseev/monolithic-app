@@ -38,14 +38,14 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(400).body("Заказ не найден");
     }
 
-    @ExceptionHandler(OrderAlreadyPaidException.class)
-    protected ResponseEntity<?> handleOrderAlreadyPaidException() {
-        return ResponseEntity.status(400).body("Заказ уже оплачен");
-    }
-
     @ExceptionHandler(PaymentFailException.class)
     protected ResponseEntity<?> handlePaymentFailException() {
-        return ResponseEntity.status(400).body("PAYMENT_FAIL");
+        return ResponseEntity.status(400).body("Оплата не прошла");
+    }
+
+    @ExceptionHandler(OrderСannotBeDeliveredException.class)
+    protected ResponseEntity<?> handleOrderСannotBeDeliveredException() {
+        return ResponseEntity.status(400).body("Заказ не может быть доставлен");
     }
 
 }

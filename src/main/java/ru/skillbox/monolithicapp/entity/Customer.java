@@ -3,7 +3,6 @@ package ru.skillbox.monolithicapp.entity;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.skillbox.monolithicapp.entity.security.Role;
 
 import javax.persistence.*;
 import java.util.Collection;

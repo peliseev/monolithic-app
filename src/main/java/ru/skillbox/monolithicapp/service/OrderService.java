@@ -12,9 +12,11 @@ import ru.skillbox.monolithicapp.model.EOrderStatus;
 import ru.skillbox.monolithicapp.model.ItemView;
 import ru.skillbox.monolithicapp.repository.ItemRepository;
 import ru.skillbox.monolithicapp.repository.OrderRepository;
+import ru.skillbox.monolithicapp.util.Convertor;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -81,20 +83,12 @@ public class OrderService {
             customerOrderView.setStatus(order.getStatus());
             customerOrderView.setStatusText(order.getStatus().getHumanReadable());
             List<OrderItem> orderItems = order.getItems();
-            List<ItemView> itemViews = orderItems.stream().map(OrderService::convertOrderItemToItemView)
+            List<ItemView> itemViews = orderItems.stream().map(Convertor::orderItemToItemView)
                     .collect(Collectors.toList());
             customerOrderView.setTotalPrice(order.getTotalPrice());
             customerOrderView.setItems(itemViews);
             return customerOrderView;
-        }).collect(Collectors.toList());
+        }).sorted(Comparator.comparing(CustomerOrderView::getStatus)).collect(Collectors.toList());
 
     }
-
-    private static ItemView convertOrderItemToItemView(OrderItem orderItem) {
-        return new ItemView(orderItem.getItem().getId(),
-                orderItem.getItem().getName(),
-                orderItem.getItem().getPrice(),
-                orderItem.getCount());
-    }
-
 }

@@ -1,8 +1,9 @@
 package ru.skillbox.monolithicapp.service;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ru.skillbox.monolithicapp.entity.Customer;
 import ru.skillbox.monolithicapp.entity.Order;
-import ru.skillbox.monolithicapp.exception.OrderAlreadyPaidException;
 import ru.skillbox.monolithicapp.exception.OrderNotFoundException;
 import ru.skillbox.monolithicapp.exception.PaymentFailException;
 import ru.skillbox.monolithicapp.model.CustomerOrderView;
@@ -24,15 +25,9 @@ public class PaymentService {
     public CustomerOrderView pay(CustomerOrderView customerOrderView) {
         Order order = orderRepository.findById(customerOrderView.getId())
                 .orElseThrow(OrderNotFoundException::new);
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (order.getStatus() != EOrderStatus.ORDER_CREATED) {
-            throw new OrderAlreadyPaidException();
-        }
-
-        // pay method will be success 80% of time
-        boolean success = Math.random() > 0.2;
-
-        if (!success) {
+        if (!validatePayment(order, customer)) {
             throw new PaymentFailException();
         }
 
@@ -43,5 +38,15 @@ public class PaymentService {
         customerOrderView.setStatusText(order.getStatus().getHumanReadable());
 
         return customerOrderView;
+    }
+
+    private boolean validatePayment(Order order, Customer customer) {
+
+        // pay method will be success 80% of time
+        boolean success = Math.random() > 0.2;
+
+        return order.getCustomerId() != customer.getId()
+                && order.getStatus() != EOrderStatus.ORDER_CREATED
+                && success;
     }
 }

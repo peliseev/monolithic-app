@@ -18,21 +18,21 @@
             aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-
+  
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
           <a class="nav-link" href="shop.html">Магазин </a>
         </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Заказы <span class="sr-only">(current)</span></a>
+        <li class="nav-item ">
+          <a class="nav-link" href="orders.html">Заказы </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="warehouse.html">Склад </a>
+        </li>        
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Доставка <span class="sr-only">(current)</span></a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="delivery.html">Доставка </a>
-          </li>
         <li class="nav-item">
           <a class="nav-link" href="login.html">Логин </a>
         </li>
@@ -59,19 +59,13 @@
                                 <thead>
                                 <tr>
                                     <th> Наименование </th>
-                                    <th> Цена </th>
                                     <th> Количество </th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr v-for="item in order.items" :key="item.id">
                                     <td><span> {{ item.name }} </span></td>
-                                    <td><span> {{ item.price }} ₽ </span></td>
                                     <td><span> {{ item.quantity }} </span></td>
-                                </tr>
-                                <tr>
-                                    <td><span> <strong>Сумма заказа</strong> </span></td>
-                                    <td><span> {{ order.totalPrice }} ₽ </span></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -81,7 +75,7 @@
                                             class="btn btn-success"
                                             v-if="order.status == 'ORDER_CREATED'"
                                             @click="pay(order)">
-                                            Оплатить
+                                            Взять заказ
                                     </button>
                                 </div>
                                 <div class="alert alert-danger" role="alert" v-if="order.error">
@@ -103,7 +97,7 @@
             orders: [],
         },
         beforeCreate() {
-            axios.get("/api/order/all")
+            axios.get("/api/delivery/orders")
             .then(response => {
                 this.orders = response.data.map(order => ({...order, error: false}));
             })
@@ -112,28 +106,8 @@
             })
         },
         methods: {
-            pay(order) {
-                axios.post("/api/order/pay", order)
-                    .then(response => {
-                        if (response.status == 200) {
-                            order.status = response.data.status
-                            order.statusText = response.data.statusText
-                            order.error = false
-                        } else {
-                            order.error = true
-                        }
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        order.error = true
-                        console.log(this.orders)
-                    })
-            },
             status(order) {
                 switch (order.status) {
-                    case "ORDER_CREATED":
-                        return "alert-primary"
-                        break;
                     case "ORDER_PAID":
                         return "alert-success"
                         break;

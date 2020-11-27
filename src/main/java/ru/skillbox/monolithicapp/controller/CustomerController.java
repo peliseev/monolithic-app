@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.skillbox.monolithicapp.entity.Customer;
-import ru.skillbox.monolithicapp.entity.security.Role;
+import ru.skillbox.monolithicapp.entity.Role;
 import ru.skillbox.monolithicapp.exception.CustomerAlreadyExistException;
 import ru.skillbox.monolithicapp.exception.PasswordDoestMatchException;
 import ru.skillbox.monolithicapp.model.CustomerView;

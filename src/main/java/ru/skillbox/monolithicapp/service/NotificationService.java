@@ -8,4 +8,5 @@ public class NotificationService {
     public void sendNotification() {
         System.out.println("Notification was send");
     }
+
 }

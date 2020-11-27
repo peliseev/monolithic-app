@@ -36,8 +36,10 @@
           <a class="nav-link" href="warehouse.html">Склад </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" href="delivery.html">Доставка </a>
+          </li>
+        <li class="nav-item">
           <a class="nav-link" href="login.html">Логин </a>
-        </li>
         </li>
       </ul>
     </div>
@@ -135,7 +137,7 @@
             orderError: false
         },
         beforeCreate() {
-            axios.get("/api/items")
+            axios.get("/api/warehouse/items")
             .then(response => {
                 this.items = response.data;
             })
@@ -176,7 +178,7 @@
                     product => product.id === item.id
                 )
                 
-                if (item.quantity != 1) {
+                if (item.quantity !== 1) {
                     item.quantity--
                 } else {
                     var removeIndex = this.cart.items.findIndex(x => x.id === item.id)
