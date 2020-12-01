@@ -8,9 +8,9 @@ import java.util.List;
 public class DeliveryOrderView {
     int id;
     EOrderStatus status;
+    String statusText;
     String customerFullName;
     String customerAddress;
     String courierFullName;
-    String statusText;
     List<ItemView> items;
 }

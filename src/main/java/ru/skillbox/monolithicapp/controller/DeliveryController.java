@@ -1,12 +1,12 @@
 package ru.skillbox.monolithicapp.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.skillbox.monolithicapp.model.DeliveryOrderView;
+import ru.skillbox.monolithicapp.model.DeliveryResponse;
 import ru.skillbox.monolithicapp.service.DeliveryService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/delivery")
@@ -19,18 +19,18 @@ public class DeliveryController {
     }
 
     @GetMapping("orders")
-    public ResponseEntity getOrdersForDelivery() {
+    public ResponseEntity<List<DeliveryOrderView>> getOrdersForDelivery() {
         return ResponseEntity.ok(deliveryService.findOrdersForDelivery());
     }
 
     @PostMapping("order/{id}/carry")
-    public ResponseEntity carryOrder(DeliveryOrderView deliveryOrderView) {
-        return ResponseEntity.ok(deliveryService.carryOrder(deliveryOrderView));
+    public ResponseEntity<DeliveryResponse> carryOrder(@PathVariable int id) {
+        return ResponseEntity.ok(deliveryService.carryOrder(id));
     }
 
-    @PostMapping("deliver")
-    public void deliver(DeliveryOrderView deliveryOrderView) {
-        deliveryService.deliver(deliveryOrderView);
+    @PostMapping("order/{id}/deliver")
+    public ResponseEntity<DeliveryResponse> deliver(@PathVariable int id) {
+        return ResponseEntity.ok(deliveryService.deliver(id));
     }
 
 }

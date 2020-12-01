@@ -42,7 +42,6 @@
                     placeholder="Логин" 
                     required="required"
                     v-model="login"
-                    :disabled="success"
                     >
         </div>
         <div class="form-group">
@@ -51,21 +50,37 @@
                     placeholder="Пароль" 
                     required="required"
                     v-model="password"
-                    :disabled="success"
                     >
         </div>
         <div class="form-group">
             <button class="btn btn-primary btn-block"
                     @click="logIn"
-                    :disabled="success"
                     >Войти</button>
         </div>
         <p class="text-center"><a href="/registration.html">Зарегистрироваться</a></p>
     </div>
     <div class="d-flex flex-column" v-if="success">
-        <div class="alert alert-primary" authorities="alert" align="center">Вы вошли успешно!</div>
-        <a class="btn btn-info" href="/shop.html" authorities="button" v-if="roles.includes('ROLE_USER')" style="margin-bottom: 3pt;">За покупками!</a>
-        <a class="btn btn-info" href="/warehouse.html" authorities="button" v-if="roles.includes('ROLE_ADMIN')">На склад!</a>
+        <div class="alert alert-primary" authorities="alert" align="center" v-if="loginSuccess">Вы вошли успешно!</div>
+        <a  class="btn btn-info" 
+            href="/shop.html" 
+            authorities="button" 
+            v-if="roles.includes('ROLE_USER') || roles.includes('ROLE_ADMIN')" 
+            style="margin-bottom: 5pt;"
+            >За покупками!
+        </a>
+        <a  class="btn btn-info" 
+            href="/warehouse.html" 
+            authorities="button" 
+            v-if="roles.includes('ROLE_SUPPLIER') || roles.includes('ROLE_ADMIN')"
+            style="margin-bottom: 5pt;"
+            >На склад!
+        </a>
+        <a  class="btn btn-info" 
+            href="/delivery.html" 
+            authorities="button" 
+            v-if="roles.includes('ROLE_DELIVERY') || roles.includes('ROLE_ADMIN')"
+            >Доставка
+        </a>
     </div>
     <div class="alert alert-danger" authorities="alert" align="center" v-if="error">Что-то пошло не так. Попробуйте позже</div>
 </div>
@@ -77,8 +92,17 @@
             login: null,
             password: null,
             success: false,
+            loginSuccess: false,
             error: false,
             roles: []
+        },
+        beforeCreate() {
+            axios.get("api/roles")
+            .then(response => {
+                this.success = true 
+                this.error = false
+                this.roles = response.data.roles
+            })
         },
         methods: {
             logIn() {
@@ -86,6 +110,7 @@
                 .then(response => {
                     if (response.status == 200) {
                         this.success = true 
+                        this.loginSuccess = true 
                         this.error = false
                         this.roles = response.data.roles
                     } else {

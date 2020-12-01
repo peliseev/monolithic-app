@@ -4,7 +4,6 @@ import lombok.*;
 import ru.skillbox.monolithicapp.model.EOrderStatus;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 

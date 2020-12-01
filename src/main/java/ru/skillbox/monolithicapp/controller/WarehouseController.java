@@ -44,7 +44,7 @@ public class WarehouseController {
     }
 
     @PostMapping("/item")
-    public ResponseEntity addItem(@RequestBody ItemView itemToAdd) {
+    public ResponseEntity<Integer> addItem(@RequestBody ItemView itemToAdd) {
         return ResponseEntity.ok(warehouseService.addItem(itemToAdd));
     }
 

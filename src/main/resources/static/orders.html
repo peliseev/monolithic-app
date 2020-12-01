@@ -125,9 +125,7 @@
                         }
                     })
                     .catch(error => {
-                        console.log(error.response)
                         order.error = true
-                        console.log(this.orders)
                     })
             },
             status(order) {

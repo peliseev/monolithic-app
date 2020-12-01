@@ -7,6 +7,7 @@ import ru.skillbox.monolithicapp.entity.Order;
 import ru.skillbox.monolithicapp.exception.OrderNotFoundException;
 import ru.skillbox.monolithicapp.exception.OrderСannotBeDeliveredException;
 import ru.skillbox.monolithicapp.model.DeliveryOrderView;
+import ru.skillbox.monolithicapp.model.DeliveryResponse;
 import ru.skillbox.monolithicapp.model.EOrderStatus;
 import ru.skillbox.monolithicapp.repository.OrderRepository;
 import ru.skillbox.monolithicapp.util.Convertor;
@@ -30,8 +31,8 @@ public class DeliveryService {
         return Convertor.orderToDeliveryOrder(ordersForDelivery);
     }
 
-    public DeliveryOrderView carryOrder(DeliveryOrderView deliveryOrderView) {
-        Order order = orderRepository.findById(deliveryOrderView.getId())
+    public DeliveryResponse carryOrder(int orderId) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
         Customer courier = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -39,21 +40,25 @@ public class DeliveryService {
             throw new OrderСannotBeDeliveredException();
         }
 
-        deliveryOrderView.setCourierFullName(courier.getFirstName() + " " + courier.getLastName());
         order.setCourier(courier);
+        order.setStatus(EOrderStatus.ORDER_COMING);
+        orderRepository.save(order);
 
-        return deliveryOrderView;
+        return new DeliveryResponse(courier.getFirstName() + " " + courier.getLastName(),
+                order.getStatus(),
+                order.getStatus().getHumanReadable());
     }
 
-    public void deliver(DeliveryOrderView deliveryOrderView) {
-        Order order = orderRepository.findById(deliveryOrderView.getId())
+    public DeliveryResponse deliver(int orderId) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
-        Customer courier = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (order.getStatus() != EOrderStatus.ORDER_COMING) {
             throw new OrderСannotBeDeliveredException();
         }
 
         order.setStatus(EOrderStatus.ORDER_DELIVERED);
+
+        return new DeliveryResponse(order.getStatus(), order.getStatus().getHumanReadable());
     }
 }

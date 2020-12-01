@@ -73,13 +73,27 @@
                                 <div>
                                     <button type="button" 
                                             class="btn btn-success"
-                                            v-if="order.status == 'ORDER_CREATED'"
-                                            @click="pay(order)">
+                                            v-if="order.status == 'ORDER_PAID'"
+                                            @click="carry(order)">
                                             Взять заказ
                                     </button>
+                                    <button type="button" 
+                                            class="btn btn-success"
+                                            v-if="order.status == 'ORDER_COMING'"
+                                            @click="daliver(order)">
+                                            Заказ доставлен
+                                    </button>
+                                    <div class="alert alert-danger" role="alert" v-if="order.error">
+                                        Oops!
+                                    </div>
                                 </div>
-                                <div class="alert alert-danger" role="alert" v-if="order.error">
-                                    Oops!
+                                <div>
+                                    Клиент: <b>{{ order.customerFullName }}</b> по адресу <b>{{ order.customerAddress }}</b>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end" v-if="order.status == 'ORDER_COMING'">
+                                <div>
+                                    Доставляет: <b>{{ order.courierFullName }}</b>
                                 </div>
                             </div>
                         </div>
@@ -120,9 +134,31 @@
                     default:
                         break;
                 }
+            },
+            carry(order) {
+                axios.post("/api/delivery/order/" + order.id + "/carry")
+                .then(response => {
+                    console.log(response)
+                    if (response.status == 200) {
+                        order.status = response.data.orderStatus;
+                        order.statusText = response.data.orderStatusText;
+                        order.courierFullName = response.data.currierName;
+                    }
+                })
+                .catch(error => this.errors.push(error))
+            },
+            daliver(order) {
+                axios.post("/api/delivery/order/" + order.id + "/deliver")
+                .then(response => {
+                    console.log(response)
+                    if (response.status == 200) {
+                        order.status = response.data.orderStatus;
+                        order.statusText = response.data.orderStatusText;
+                    }
+                })
+                .catch(error => this.errors.push(error))                
             }
         }
     })
-
 </script>
 </html>

@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.skillbox.monolithicapp.exception.NoItemsException;
 import ru.skillbox.monolithicapp.model.CustomerOrderView;
 import ru.skillbox.monolithicapp.model.ItemView;
-import ru.skillbox.monolithicapp.repository.ItemRepository;
 import ru.skillbox.monolithicapp.service.OrderService;
 import ru.skillbox.monolithicapp.service.PaymentService;
 
@@ -15,12 +14,10 @@ import java.util.List;
 @RequestMapping("api/order")
 public class OrderController {
 
-    private final ItemRepository itemRepository;
     private final OrderService orderService;
     private final PaymentService paymentService;
 
-    public OrderController(ItemRepository itemRepository, OrderService orderService, PaymentService paymentService) {
-        this.itemRepository = itemRepository;
+    public OrderController(OrderService orderService, PaymentService paymentService) {
         this.orderService = orderService;
         this.paymentService = paymentService;
     }
@@ -32,12 +29,12 @@ public class OrderController {
     }
 
     @GetMapping("all")
-    public ResponseEntity getOrders() {
+    public ResponseEntity<List<CustomerOrderView>> getOrders() {
         return ResponseEntity.ok(orderService.getOrders());
     }
 
     @PostMapping("pay")
-    public ResponseEntity pay(@RequestBody CustomerOrderView customerOrderView) {
+    public ResponseEntity<CustomerOrderView> pay(@RequestBody CustomerOrderView customerOrderView) {
         return ResponseEntity.ok(paymentService.pay(customerOrderView));
     }
 

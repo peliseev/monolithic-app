@@ -13,7 +13,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import ru.skillbox.monolithicapp.model.ERole;
-import ru.skillbox.monolithicapp.security.AuthEntryPoint;
 import ru.skillbox.monolithicapp.service.CustomerService;
 
 @Configuration
@@ -58,10 +57,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
                 .authorizeRequests()
-                .antMatchers("/shop**").hasAnyAuthority(ERole.ROLE_USER.name())
-                .antMatchers("/warehouse**").hasAnyAuthority(ERole.ROLE_ADMIN.name())
+                .antMatchers("/shop**").hasAnyAuthority(ERole.ROLE_USER.name(), ERole.ROLE_ADMIN.name())
+                .antMatchers("/api/order**").hasAnyAuthority(ERole.ROLE_USER.name(), ERole.ROLE_ADMIN.name())
+                .antMatchers("/warehouse**").hasAnyAuthority(ERole.ROLE_SUPPLIER.name(), ERole.ROLE_ADMIN.name())
+                .antMatchers("/api/warehouse**").hasAnyAuthority(ERole.ROLE_SUPPLIER.name(), ERole.ROLE_ADMIN.name())
+                .antMatchers("/delivery**").hasAnyAuthority(ERole.ROLE_DELIVERY.name(), ERole.ROLE_ADMIN.name())
+                .antMatchers("/api/delivery**").hasAnyAuthority(ERole.ROLE_DELIVERY.name(), ERole.ROLE_ADMIN.name())
                 .antMatchers("/login**", "/api/login").permitAll()
                 .antMatchers("/registration**", "/api/register").permitAll()
+                .antMatchers("/api/roles").permitAll()
                 .antMatchers("/h2-console**").permitAll()
                 .anyRequest()
                 .authenticated();
