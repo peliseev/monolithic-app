@@ -92,6 +92,13 @@
         >Магазин</a>
 
         <a class="btn btn-info"
+           href="/orders.html"
+           authorities="button"
+           v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')"
+           style="margin-bottom: 5pt;"
+        >Заказы</a>
+
+        <a class="btn btn-info"
            href="/delivery.html"
            authorities="button"
            v-if="roles.includes('ROLE_DELIVER')"

@@ -69,16 +69,24 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint()).and()
                 .authorizeRequests()
-                .antMatchers("/shop**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name(), EUserRole.ROLE_ADMIN.name())
-                .antMatchers("/api/order**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name(), EUserRole.ROLE_ADMIN.name())
-                .antMatchers("/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name(), EUserRole.ROLE_ADMIN.name())
-                .antMatchers("/api/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name(), EUserRole.ROLE_ADMIN.name())
-                .antMatchers("/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name(), EUserRole.ROLE_ADMIN.name())
-                .antMatchers("/api/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name(), EUserRole.ROLE_ADMIN.name())
+
+                .antMatchers("/admin**").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
+                .antMatchers("/api/users").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
+                //.antMatchers("/api/roles").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
+
+                .antMatchers("/shop**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
+                .antMatchers("/api/order**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
+
+                .antMatchers("/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name())
+                .antMatchers("/api/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name())
+
+                .antMatchers("/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name())
+                .antMatchers("/api/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name())
+
                 .antMatchers("/login**", "/api/login").permitAll()
                 .antMatchers("/registration**", "/api/register").permitAll()
-                .antMatchers("/api/roles").permitAll()
                 .antMatchers("/h2-console**").permitAll()
+
                 .anyRequest()
                 .authenticated()
                 .and()

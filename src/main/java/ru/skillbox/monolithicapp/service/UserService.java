@@ -93,8 +93,6 @@ public class UserService implements UserDetailsService {
         user.setFirstName(userView.getFirstName());
         user.setLastName(userView.getFirstName());
         user.setUsername(userView.getLogin());
-        // ToDo: подумать над возможностью регистрации не только потребителей
-        //  (хотя, вероятно, остальных пользователей должен создавать именно админ в своем меню)
         user.setRoles(Collections.singleton(roleRepository.findByName(EUserRole.ROLE_CUSTOMER)));
 
         return user;

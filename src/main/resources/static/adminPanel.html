@@ -27,18 +27,22 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Магазин <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="#" v-if="roles.includes('ROLE_ADMIN')">Панель администратора <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="orders.html">Заказы </a>
+                    <a class="nav-link" href="shop.html" v-if="roles.includes('ROLE_CUSTOMER')">Магазин</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="warehouse.html">Склад </a>
+                    <a class="nav-link" href="orders.html" v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">Заказы</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="delivery.html">Доставка </a>
+                    <a class="nav-link" href="delivery.html" v-if="roles.includes('ROLE_DELIVER')">Доставка</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="warehouse.html" v-if="roles.includes('ROLE_SUPPLIER')">Склад</a>
                 </li>
             </ul>
+
             <ul class="nav pull-right">
                 <li>
                     <button type="button"
@@ -106,11 +110,17 @@
     var app = new Vue({
         el: "#app",
         data: {
+            roles: [],
+
             logoutSuccess: false,
             REDIRECT_TIMEOUT: 3,
             redirectTimeout: 3
         },
         beforeCreate() {
+            axios.get("api/roles")
+                .then(response => {
+                    this.roles = response.data.roles
+                })
         },
         computed: {},
         methods: {
