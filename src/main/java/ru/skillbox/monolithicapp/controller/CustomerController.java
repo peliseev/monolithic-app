@@ -6,11 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.monolithicapp.entity.Customer;
-import ru.skillbox.monolithicapp.entity.Role;
-import ru.skillbox.monolithicapp.exception.CustomerAlreadyExistException;
+import ru.skillbox.monolithicapp.entity.UserRole;
+import ru.skillbox.monolithicapp.exception.UserAlreadyExistException;
 import ru.skillbox.monolithicapp.exception.PasswordDoestMatchException;
-import ru.skillbox.monolithicapp.model.CustomerView;
-import ru.skillbox.monolithicapp.model.ERole;
+import ru.skillbox.monolithicapp.model.UserView;
+import ru.skillbox.monolithicapp.model.EUserRole;
 import ru.skillbox.monolithicapp.model.LogInView;
 import ru.skillbox.monolithicapp.service.CustomerService;
 
@@ -31,31 +31,31 @@ public class CustomerController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<CustomerRoles> logIn(HttpServletRequest request, HttpServletResponse response,
-                                @RequestBody LogInView logInView) {
+    public ResponseEntity<CustomerRoles> logIn(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @RequestBody LogInView logInView) {
         Customer customer = customerService.logIn(request, response, logInView);
         return ResponseEntity.ok(new CustomerRoles(
                 customer.getRoles().stream()
-                        .map(Role::getAuthority)
+                        .map(UserRole::getAuthority)
                         .collect(Collectors.toSet())));
     }
 
     @PostMapping("/register")
-    public void register(@RequestBody CustomerView registrationData)
-            throws CustomerAlreadyExistException, PasswordDoestMatchException {
+    public void register(@RequestBody UserView registrationData)
+            throws UserAlreadyExistException, PasswordDoestMatchException {
         customerService.register(registrationData);
     }
 
     @GetMapping("roles")
     public ResponseEntity<CustomerRoles> roles(@AuthenticationPrincipal Customer customer) {
-
         if (customer == null) {
-            return ResponseEntity.ok(new CustomerRoles(Collections.singleton(ERole.ROLE_ANONYMOUS.name())));
+            return ResponseEntity.ok(new CustomerRoles(Collections.singleton(EUserRole.ROLE_ANONYMOUS.name())));
         }
 
         return ResponseEntity.ok(new CustomerRoles(
                 customer.getRoles().stream()
-                        .map(Role::getAuthority)
+                        .map(UserRole::getAuthority)
                         .collect(Collectors.toSet())));
     }
 

@@ -3,7 +3,7 @@ package ru.skillbox.monolithicapp.model;
 import lombok.Data;
 
 @Data
-public class CustomerView {
+public class UserView {
     private String login;
     private String password;
     private String passwordConfirm;

@@ -46,7 +46,7 @@ public class DeliveryService {
 
         return new DeliveryResponse(courier.getFirstName() + " " + courier.getLastName(),
                 order.getStatus(),
-                order.getStatus().getHumanReadable());
+                order.getStatus().getHumanReadableText());
     }
 
     public DeliveryResponse deliver(int orderId) {
@@ -59,6 +59,6 @@ public class DeliveryService {
 
         order.setStatus(EOrderStatus.ORDER_DELIVERED);
 
-        return new DeliveryResponse(order.getStatus(), order.getStatus().getHumanReadable());
+        return new DeliveryResponse(order.getStatus(), order.getStatus().getHumanReadableText());
     }
 }

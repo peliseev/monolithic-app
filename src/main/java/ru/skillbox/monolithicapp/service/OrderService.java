@@ -76,7 +76,7 @@ public class OrderService {
             CustomerOrderView customerOrderView = new CustomerOrderView();
             customerOrderView.setId(order.getId());
             customerOrderView.setStatus(order.getStatus());
-            customerOrderView.setStatusText(order.getStatus().getHumanReadable());
+            customerOrderView.setStatusText(order.getStatus().getHumanReadableText());
             List<OrderItem> orderItems = order.getItems();
             List<ItemView> itemViews = orderItems.stream().map(Convertor::orderItemToItemView)
                     .collect(Collectors.toList());

@@ -6,9 +6,9 @@ import java.util.List;
 
 @Data
 public class CustomerOrderView {
-    int id;
-    EOrderStatus status;
-    String statusText;
-    int totalPrice;
-    List<ItemView> items;
+    private int id;
+    private EOrderStatus status;
+    private String statusText;
+    private int totalPrice;
+    private List<ItemView> items;
 }

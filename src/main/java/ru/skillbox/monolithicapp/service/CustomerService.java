@@ -8,15 +8,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.stereotype.Service;
 import ru.skillbox.monolithicapp.entity.Customer;
-import ru.skillbox.monolithicapp.entity.Role;
-import ru.skillbox.monolithicapp.exception.CustomerAlreadyExistException;
+import ru.skillbox.monolithicapp.exception.UserAlreadyExistException;
 import ru.skillbox.monolithicapp.exception.PasswordDoestMatchException;
-import ru.skillbox.monolithicapp.model.CustomerView;
-import ru.skillbox.monolithicapp.model.ERole;
+import ru.skillbox.monolithicapp.model.UserView;
+import ru.skillbox.monolithicapp.model.EUserRole;
 import ru.skillbox.monolithicapp.model.LogInView;
 import ru.skillbox.monolithicapp.repository.CustomerRepository;
 import ru.skillbox.monolithicapp.repository.RoleRepository;
@@ -33,20 +32,20 @@ public class CustomerService implements UserDetailsService {
 
     private final CustomerRepository customerRepository;
     private final RoleRepository roleRepository;
-    private final BCryptPasswordEncoder bcPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenBasedRememberMeServices rememberMeServices;
 
     public CustomerService(CustomerRepository customerRepository,
                            RoleRepository roleRepository,
-                           BCryptPasswordEncoder bcPasswordEncoder,
-                           AuthenticationManager authenticationManager,
-                           @Lazy TokenBasedRememberMeServices rememberMeServices) {
+                           PasswordEncoder passwordEncoder,
+                           AuthenticationManager consumerAuthenticationManager,
+                           @Lazy TokenBasedRememberMeServices rememberCustomerServices) {
         this.customerRepository = customerRepository;
         this.roleRepository = roleRepository;
-        this.bcPasswordEncoder = bcPasswordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.rememberMeServices = rememberMeServices;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = consumerAuthenticationManager;
+        this.rememberMeServices = rememberCustomerServices;
     }
 
     @Override
@@ -69,32 +68,28 @@ public class CustomerService implements UserDetailsService {
         return (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    public void register(CustomerView registrationData) throws CustomerAlreadyExistException, PasswordDoestMatchException {
+    public void register(UserView registrationData) throws UserAlreadyExistException, PasswordDoestMatchException {
         String login = registrationData.getLogin();
         Customer customerFromDB = customerRepository.findByUsername(login);
         if (customerFromDB != null) {
-            throw new CustomerAlreadyExistException(String.format("Client with login %s already exist", login));
+            throw new UserAlreadyExistException(String.format("Client with login %s already exist", login));
         }
         if (!Objects.equals(registrationData.getPassword(), registrationData.getPasswordConfirm())) {
             throw new PasswordDoestMatchException("Passwords doesn't match!");
         }
-        Role role = roleRepository.findByName(ERole.ROLE_USER);
-
-        Customer customerToSave = fromViewToCustomer(registrationData);
-        customerToSave.setRoles(Collections.singleton(role));
-
-        customerRepository.save(customerToSave);
+        customerRepository.save(getCustomer(registrationData));
     }
 
-    private Customer fromViewToCustomer(CustomerView customerView) {
+    private Customer getCustomer(UserView userView) {
         Customer customer = new Customer();
 
-        customer.setPassword(bcPasswordEncoder.encode(customerView.getPassword()));
-        customer.setAddress(customerView.getAddress());
-        customer.setEmail(customerView.getEmail());
-        customer.setFirstName(customerView.getFirstName());
-        customer.setLastName(customerView.getFirstName());
-        customer.setUsername(customerView.getLogin());
+        customer.setPassword(passwordEncoder.encode(userView.getPassword()));
+        customer.setAddress(userView.getAddress());
+        customer.setEmail(userView.getEmail());
+        customer.setFirstName(userView.getFirstName());
+        customer.setLastName(userView.getFirstName());
+        customer.setUsername(userView.getLogin());
+        customer.setRoles(Collections.singleton(roleRepository.findByName(EUserRole.ROLE_CONSUMER)));
 
         return customer;
     }

@@ -25,7 +25,7 @@ public class Convertor {
                     DeliveryOrderView deliveryOrderView = new DeliveryOrderView();
                     deliveryOrderView.setId(o.getId());
                     deliveryOrderView.setStatus(o.getStatus());
-                    deliveryOrderView.setStatusText(o.getStatus().getHumanReadable());
+                    deliveryOrderView.setStatusText(o.getStatus().getHumanReadableText());
                     deliveryOrderView.setCustomerFullName(
                             o.getCustomer().getFirstName() + " " + o.getCustomer().getLastName());
                     deliveryOrderView.setCustomerAddress(o.getCustomer().getAddress());

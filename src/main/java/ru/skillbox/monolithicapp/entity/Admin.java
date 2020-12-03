@@ -5,16 +5,17 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "admins")
 @Getter
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = "orders")
-public class Customer implements UserDetails {
+@ToString
+public class Admin implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,9 +51,6 @@ public class Customer implements UserDetails {
 
     @Column(name = "address")
     private String  address;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "customer")
-    private Set<Order> orders = new HashSet<>(0);
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "order_item")
+@Table(name = "order_items")
 @IdClass(OrderItem.OrderItemId.class)
 @ToString(exclude = {"order", "item"})
 public class OrderItem {

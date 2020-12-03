@@ -35,7 +35,7 @@ public class PaymentService {
         orderRepository.save(order);
 
         customerOrderView.setStatus(order.getStatus());
-        customerOrderView.setStatusText(order.getStatus().getHumanReadable());
+        customerOrderView.setStatusText(order.getStatus().getHumanReadableText());
 
         return customerOrderView;
     }
