@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import ru.skillbox.monolithicapp.model.EUserRole;
 
 import javax.persistence.*;
@@ -33,7 +32,7 @@ public class UserRole implements GrantedAuthority {
             joinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "id")},
             inverseJoinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id")}
     )
-    private Collection<Customer> customers;
+    private Collection<User> users;
 
     @Override
     public String getAuthority() {

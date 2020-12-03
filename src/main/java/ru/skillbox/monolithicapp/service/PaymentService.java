@@ -2,7 +2,7 @@ package ru.skillbox.monolithicapp.service;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ru.skillbox.monolithicapp.entity.Customer;
+import ru.skillbox.monolithicapp.entity.User;
 import ru.skillbox.monolithicapp.entity.Order;
 import ru.skillbox.monolithicapp.exception.OrderNotFoundException;
 import ru.skillbox.monolithicapp.exception.PaymentFailException;
@@ -25,9 +25,9 @@ public class PaymentService {
     public CustomerOrderView pay(CustomerOrderView customerOrderView) {
         Order order = orderRepository.findById(customerOrderView.getId())
                 .orElseThrow(OrderNotFoundException::new);
-        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (!validatePayment(order, customer)) {
+        if (!validatePayment(order, user)) {
             throw new PaymentFailException();
         }
 
@@ -40,12 +40,12 @@ public class PaymentService {
         return customerOrderView;
     }
 
-    private boolean validatePayment(Order order, Customer customer) {
+    private boolean validatePayment(Order order, User user) {
 
         // pay method will be success 80% of time
         boolean success = Math.random() > 0.2;
 
-        return order.getCustomerId() == customer.getId()
+        return order.getCustomerId() == user.getId()
                 && order.getStatus() == EOrderStatus.ORDER_CREATED
                 && success;
     }

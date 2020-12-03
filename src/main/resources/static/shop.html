@@ -3,123 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <title>12 Стульев</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <style>
-    </style>
+
+    <style></style>
 </head>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand">12 Стульев</a>
-    <button class="navbar-toggler" 
-            type="button" 
-            data-toggle="collapse" 
-            data-target="#navbarSupportedContent" 
-            aria-controls="navbarSupportedContent" 
-            aria-expanded="false" 
-            aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-  
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Магазин <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="orders.html">Заказы </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="warehouse.html">Склад </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="delivery.html">Доставка </a>
-          </li>
-        <li class="nav-item">
-          <a class="nav-link" href="login.html">Логин </a>
-        </li>
-      </ul>
-    </div>
-</nav>
 <body>
-<div class="container" id="app">
-    <div class="h-100 row align-items-center">
-        <div class="col-lg-12">
-            <h1> Мебель </h1>
-        </div>
-    </div>
-    <div class="row align-items-center">
-        <div class="col-lg-12">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th> Наименование </th>
-                    <th> Цена </th>
-                    <th> Количество </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="item in items" :key="item.id">
-                    <td><span> {{ item.name }} </span></td>
-                    <td><span> {{ item.price }} ₽ </span></td>
-                    <td><span> {{ item.quantity }} </span></td>
-                    <td><button 
-                        type="button" 
-                        class="btn btn-dark" 
-                        @click="addItem(item)"
-                        >Добавить</button></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="d-flex flex-column justify-content-around ml-4">
-            <div> 
-                <button 
+<div id="app">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand">12 Стульев</a>
+        <button class="navbar-toggler"
                 type="button"
-                class="btn btn-primary"
-                @click="createOrder"
-                :disabled="cartIsEmpty"
-                > Оформить заказ </button>
-            </div>
-            <div class="alert alert-success mt-2"  role="alert" v-if="orderCreated">Заказ создан! </div>
-            <div class="alert alert-danger mt-2"   role="alert" v-if="orderError">Что-то пошло не так. Попробуйте позже. </div>
+                data-toggle="collapse"
+                data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Магазин <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="orders.html">Заказы </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="warehouse.html">Склад </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="delivery.html">Доставка </a>
+                </li>
+            </ul>
+            <ul class="nav pull-right">
+                <li>
+                    <button type="button"
+                            class="btn text-dark navbar-brand"
+                            @click="logOut"
+                    >Выйти
+                    </button>
+                </li>
+            </ul>
         </div>
-    </div>
-    <div class="row mt-4">
-        <h2>Корзина</h2>
-        <div class="col-lg-12">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th> Наименование </th>
-                    <th> Цена</th>
-                    <th> Количество </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="item in cart.items" :key="item.id">
-                    <td><span> {{ item.name }} </span></td>
-                    <td><span> {{ item.price }} ₽ </span></td>
-                    <td><span> {{ item.quantity }} </span></td>
-                    <td><button 
-                        type="button" 
-                        class="btn btn-dark" 
-                        @click="deleteItem(item)"
-                        >Удалить</button></td>
-                </tr>
-                <tr>
-                    <td><span> <strong>Всего</strong> </span></td>
-                    <td><span> {{ cart.totalPrice }} ₽ </span></td>
-                    <td><span> {{ cart.totalCount }} </span></td>
-                </tr>
-                </tbody>
-            </table>
+    </nav>
+
+    <template v-if="logoutSuccess">
+        <div class="alert alert-primary" authorities="alert" align="center">Вы успешно вышли из системы и
+            будете направлены на страницу входа через {{redirectTimeout}} секунды!
+        </div>
+        <div class="progress" style="height: 2px;">
+            <div id="redirect-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+        </div>
+    </template>
+
+    <div class="container">
+        <div class="h-100 row align-items-center">
+            <div class="col-lg-12">
+                <h1> Мебель </h1>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-lg-12">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th> Наименование</th>
+                        <th> Цена</th>
+                        <th> Количество</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in items" :key="item.id">
+                        <td><span> {{ item.name }} </span></td>
+                        <td><span> {{ item.price }} ₽ </span></td>
+                        <td><span> {{ item.quantity }} </span></td>
+                        <td>
+                            <button
+                                    type="button"
+                                    class="btn btn-dark"
+                                    @click="addItem(item)"
+                            >Добавить
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex flex-column justify-content-around ml-4">
+                <div>
+                    <button
+                            type="button"
+                            class="btn btn-primary"
+                            @click="createOrder"
+                            :disabled="cartIsEmpty"
+                    > Оформить заказ
+                    </button>
+                </div>
+                <div class="alert alert-success mt-2" role="alert" v-if="orderCreated">Заказ создан!</div>
+                <div class="alert alert-danger mt-2" role="alert" v-if="orderError">Что-то пошло не так. Попробуйте
+                    позже.
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <h2>Корзина</h2>
+            <div class="col-lg-12">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th> Наименование</th>
+                        <th> Цена</th>
+                        <th> Количество</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in cart.items" :key="item.id">
+                        <td><span> {{ item.name }} </span></td>
+                        <td><span> {{ item.price }} ₽ </span></td>
+                        <td><span> {{ item.quantity }} </span></td>
+                        <td>
+                            <button
+                                    type="button"
+                                    class="btn btn-dark"
+                                    @click="deleteItem(item)"
+                            >Удалить
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span> <strong>Всего</strong> </span></td>
+                        <td><span> {{ cart.totalPrice }} ₽ </span></td>
+                        <td><span> {{ cart.totalCount }} </span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 </body>
-<script>
 
+<script>
     var app = new Vue({
         el: "#app",
         data: {
@@ -131,16 +160,20 @@
                 totalPrice: 0
             },
             orderCreated: false,
-            orderError: false
+            orderError: false,
+
+            logoutSuccess: false,
+            REDIRECT_TIMEOUT: 3,
+            redirectTimeout: 3
         },
         beforeCreate() {
             axios.get("/api/warehouse/items")
-            .then(response => {
-                this.items = response.data;
-            })
-            .catch(error => {
-                this.errors.push(error)
-            })
+                .then(response => {
+                    this.items = response.data;
+                })
+                .catch(error => {
+                    this.errors.push(error)
+                })
         },
         computed: {
             cartIsEmpty() {
@@ -174,7 +207,7 @@
                 let found = this.items.find(
                     product => product.id === item.id
                 )
-                
+
                 if (item.quantity !== 1) {
                     item.quantity--
                 } else {
@@ -190,7 +223,7 @@
             createOrder() {
                 axios.post("/api/order", this.cart.items)
                     .then(response => {
-                        if (response.status == 200) {
+                        if (response.status === 200) {
                             this.cart = {
                                 items: [],
                                 totalCount: 0,
@@ -202,6 +235,28 @@
                         }
                     })
                     .catch(error => this.orderError = true)
+            },
+            logOut() {
+                axios.post("/api/logout")
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.logoutSuccess = true
+                            this.error = false
+
+                            setInterval(() => {
+                                this.redirectTimeout--
+                                document.getElementById('redirect-progress-bar').style.width =
+                                    ((this.REDIRECT_TIMEOUT - this.redirectTimeout) / this.REDIRECT_TIMEOUT) * 100 + '%';
+                            }, 1000);
+
+                            setTimeout(() =>
+                                    window.location.href = "/login.html",
+                                this.REDIRECT_TIMEOUT * 1000)
+                        } else {
+                            this.error = true
+                        }
+                    })
+                    .catch(err => this.error = true)
             }
         }
     })

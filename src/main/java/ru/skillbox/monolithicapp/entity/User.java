@@ -8,13 +8,13 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(exclude = "orders")
-public class Customer implements UserDetails {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

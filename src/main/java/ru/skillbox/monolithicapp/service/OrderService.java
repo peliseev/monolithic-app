@@ -2,7 +2,7 @@ package ru.skillbox.monolithicapp.service;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ru.skillbox.monolithicapp.entity.Customer;
+import ru.skillbox.monolithicapp.entity.User;
 import ru.skillbox.monolithicapp.entity.Item;
 import ru.skillbox.monolithicapp.entity.Order;
 import ru.skillbox.monolithicapp.entity.OrderItem;
@@ -56,21 +56,20 @@ public class OrderService {
             totalPrice = totalPrice + dbItem.getPrice() * itemsInCart;
         }
 
-        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User consumer = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         order.setItems(orderItems);
-        order.setCustomer(customer);
+        order.setCustomer(consumer);
         order.setTotalPrice(totalPrice);
         order.setStatus(EOrderStatus.ORDER_CREATED);
 
         itemRepository.saveAll(dbItems);
         orderRepository.save(order);
-
     }
 
     public List<CustomerOrderView> getOrders() {
-        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Order> orders = orderRepository.getByCustomerId(customer.getId());
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Order> orders = orderRepository.getByCustomerId(user.getId());
 
         return orders.stream().map(order -> {
             CustomerOrderView customerOrderView = new CustomerOrderView();

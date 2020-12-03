@@ -30,7 +30,7 @@ public class OrderItem {
     @Column(name = "count")
     private int count;
 
-    protected static class OrderItemId implements Serializable {
+    static class OrderItemId implements Serializable {
         int order;
         int item;
     }
