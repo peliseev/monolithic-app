@@ -25,17 +25,20 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="adminPanel.html" v-if="roles.includes('ROLE_ADMIN')">Панель администратора</a>
+                    <a class="nav-link" href="adminPanel.html" v-if="roles.includes('ROLE_ADMIN')">Панель
+                        администратора</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="shop.html" v-if="roles.includes('ROLE_CUSTOMER')">Магазин</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="orders.html" v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">
+                    <a class="nav-link" href="orders.html"
+                       v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">
                         Заказы <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="delivery.html" v-if="roles.includes('ROLE_DELIVER')">Доставка <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="delivery.html" v-if="roles.includes('ROLE_DELIVER')">Доставка <span
+                            class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="warehouse.html" v-if="roles.includes('ROLE_SUPPLIER')">Склад</a>
@@ -141,7 +144,7 @@
             redirectTimeout: 3
         },
         beforeCreate() {
-            axios.get("api/roles")
+            axios.get("api/user/roles")
                 .then(response => {
                     this.roles = response.data.roles
                 })
@@ -193,7 +196,7 @@
                     .catch(error => this.errors.push(error))
             },
             logOut() {
-                axios.post("/api/logout")
+                axios.post("/api/user/logout")
                     .then(response => {
                         if (response.status === 200) {
                             this.logoutSuccess = true
@@ -205,8 +208,7 @@
                                     ((this.REDIRECT_TIMEOUT - this.redirectTimeout) / this.REDIRECT_TIMEOUT) * 100 + '%';
                             }, 1000);
 
-                            setTimeout(() =>
-                                    window.location.href = "/login.html",
+                            setTimeout(() => window.location.href = "/login.html",
                                 this.REDIRECT_TIMEOUT * 1000)
                         } else {
                             this.error = true

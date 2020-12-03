@@ -145,7 +145,7 @@
         },
         methods: {
             register() {
-                if (this.registration.password == this.registration.passwordConfirm) {
+                if (this.registration.password === this.registration.passwordConfirm) {
                     axios.post("/api/register", this.registration)
                         .then(response => {
                             if (response.status === 200) {
@@ -154,12 +154,11 @@
                                 setInterval(() => {
                                     this.sec--
                                 }, 1000);
-                                setTimeout(() =>
-                                        window.location.href = "/login.html",
+                                setTimeout(() => window.location.href = "/login.html",
                                     3000)
                             } else {
                                 this.error = true
-                                this.errorMessage = rsponse.data
+                                this.errorMessage = response.data
                             }
                         })
                         .catch(err => this.error = true)

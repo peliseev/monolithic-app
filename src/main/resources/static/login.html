@@ -80,34 +80,34 @@
         <a class="btn btn-info"
            href="/adminPanel.html"
            authorities="button"
-           v-if="roles.includes('ROLE_ADMIN')"
+           v-if="(roles !== undefined) && roles.includes('ROLE_ADMIN')"
            style="margin-bottom: 5pt;"
         >Меню администратора</a>
 
         <a class="btn btn-info"
            href="/shop.html"
            authorities="button"
-           v-if="roles.includes('ROLE_CUSTOMER')"
+           v-if="(roles !== undefined) && roles.includes('ROLE_CUSTOMER')"
            style="margin-bottom: 5pt;"
         >Магазин</a>
 
         <a class="btn btn-info"
            href="/orders.html"
            authorities="button"
-           v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')"
+           v-if="(roles !== undefined) && (roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER'))"
            style="margin-bottom: 5pt;"
         >Заказы</a>
 
         <a class="btn btn-info"
            href="/delivery.html"
            authorities="button"
-           v-if="roles.includes('ROLE_DELIVER')"
+           v-if="(roles !== undefined) && roles.includes('ROLE_DELIVER')"
         >Доставка</a>
 
         <a class="btn btn-info"
            href="/warehouse.html"
            authorities="button"
-           v-if="roles.includes('ROLE_SUPPLIER')"
+           v-if="(roles !== undefined) && roles.includes('ROLE_SUPPLIER')"
            style="margin-bottom: 5pt;"
         >Склад</a>
     </div>
@@ -123,10 +123,12 @@
             loginSuccess: false,
             logoutSuccess: false,
             error: false,
-            roles: []
+            roles: {
+                includes: function () { return false; }
+            }
         },
         beforeCreate() {
-            axios.get("api/roles")
+            axios.get("/api/user/roles")
                 .then(response => {
                     this.success = true
                     this.error = false
@@ -135,7 +137,7 @@
         },
         methods: {
             logIn() {
-                axios.post("/api/login", {login: this.login, password: this.password})
+                axios.post("/api/user/login", {login: this.login, password: this.password})
                     .then(response => {
                         if (response.status === 200) {
                             this.success = true
@@ -150,14 +152,16 @@
                     .catch(err => this.error = true)
             },
             logOut() {
-                axios.post("/api/logout")
+                axios.post("/api/user/logout")
                     .then(response => {
                         if (response.status === 200) {
                             this.success = true
                             this.logoutSuccess = true
                             this.loginSuccess = false
                             this.error = false
-                            this.roles = []
+                            this.roles = {
+                                includes: function () { return false; }
+                            }
                         } else {
                             this.error = true
                         }

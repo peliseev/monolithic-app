@@ -34,8 +34,8 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) -> {
             String path = request.getRequestURI();
-            if (path.startsWith("/login") || path.startsWith("/api/login") ||
-                    path.startsWith("/register") || path.startsWith("/api/registration")) {
+            if (path.startsWith("/login") || path.startsWith("/api/user/login") ||
+                path.startsWith("/register") || path.startsWith("/api/user/registration")) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
             } else {
                 response.sendRedirect("/login.html");
@@ -71,20 +71,14 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint()).and()
                 .authorizeRequests()
 
-                .antMatchers("/admin**").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
-                .antMatchers("/api/users").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
+                .antMatchers("/admin**", "/api/user/all", "/api/user/delete", "/api/user/password**")
+                .hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
+                .antMatchers("/shop**", "/api/order**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
+                .antMatchers("/warehouse**", "/api/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name())
+                .antMatchers("/delivery**", "/api/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name())
 
-                .antMatchers("/shop**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
-                .antMatchers("/api/order**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
-
-                .antMatchers("/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name())
-                .antMatchers("/api/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name())
-
-                .antMatchers("/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name())
-                .antMatchers("/api/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name())
-
-                .antMatchers("/login**", "/api/login").permitAll()
-                .antMatchers("/registration**", "/api/register").permitAll()
+                .antMatchers("/login**", "/api/user/login").permitAll()
+                .antMatchers("/registration**", "/api/user/register").permitAll()
                 .antMatchers("/h2-console**").permitAll()
 
                 .anyRequest()

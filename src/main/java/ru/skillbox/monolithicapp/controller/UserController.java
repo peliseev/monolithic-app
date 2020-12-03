@@ -15,14 +15,13 @@ import ru.skillbox.monolithicapp.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("api/user")
 public class UserController {
 
     private final UserService userService;
@@ -56,7 +55,7 @@ public class UserController {
     }
 
     @GetMapping("roles")
-    public ResponseEntity<UserRoles> roles(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserRoles> getUserRoles(@AuthenticationPrincipal User user) {
         if (user == null) {
             return ok(new UserRoles(Collections.singleton(EUserRole.ROLE_ANONYMOUS.name())));
         }
@@ -65,6 +64,23 @@ public class UserController {
                 user.getRoles().stream()
                         .map(UserRole::getAuthority)
                         .collect(Collectors.toSet())));
+    }
+
+    @PostMapping("{id}/password/change")
+    public ResponseEntity<Void> changeUserPassword(@PathVariable int id, @RequestBody PasswordView passwordView) {
+        userService.changePassword(id, passwordView.getPassword());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("{id}/delete")
+    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
+        userService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("all")
+    public ResponseEntity<List<UserViewForAdmin>> getAllUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 
     @AllArgsConstructor

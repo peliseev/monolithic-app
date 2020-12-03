@@ -25,13 +25,15 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="adminPanel.html" v-if="roles.includes('ROLE_ADMIN')">Панель администратора</a>
+                    <a class="nav-link" href="adminPanel.html" v-if="roles.includes('ROLE_ADMIN')">Панель
+                        администратора</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="shop.html" v-if="roles.includes('ROLE_CUSTOMER')">Магазин</a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="orders.html" v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">
+                    <a class="nav-link" href="orders.html"
+                       v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">
                         Заказы <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
@@ -132,7 +134,7 @@
             redirectTimeout: 3
         },
         beforeCreate() {
-            axios.get("api/roles")
+            axios.get("api/user/roles")
                 .then(response => {
                     this.roles = response.data.roles
                 })
@@ -148,11 +150,11 @@
             pay(order) {
                 axios.post("/api/order/pay", order)
                     .then(response => {
-                        if (response.status == 200) {
+                        if (response.status === 200) {
                             order.status = response.data.status
                             order.statusText = response.data.statusText
                             order.error = false
-                            this.orders.sort((a, b) => a.status == "ORDER_CREATED" ? -1 : 1)
+                            this.orders.sort((a, b) => a.status === "ORDER_CREATED" ? -1 : 1)
                         } else {
                             order.error = true
                         }
@@ -165,22 +167,19 @@
                 switch (order.status) {
                     case "ORDER_CREATED":
                         return "alert-primary"
-                        break;
+
                     case "ORDER_PAID":
                         return "alert-success"
-                        break;
+
                     case "ORDER_COMING":
                         return "alert-info"
-                        break;
+
                     case "ORDER_DELIVERED":
                         return "alert-dark"
-                        break;
-                    default:
-                        break;
                 }
             },
             logOut() {
-                axios.post("/api/logout")
+                axios.post("/api/user/logout")
                     .then(response => {
                         if (response.status === 200) {
                             this.logoutSuccess = true
@@ -192,8 +191,7 @@
                                     ((this.REDIRECT_TIMEOUT - this.redirectTimeout) / this.REDIRECT_TIMEOUT) * 100 + '%';
                             }, 1000);
 
-                            setTimeout(() =>
-                                    window.location.href = "/login.html",
+                            setTimeout(() => window.location.href = "/login.html",
                                 this.REDIRECT_TIMEOUT * 1000)
                         } else {
                             this.error = true
