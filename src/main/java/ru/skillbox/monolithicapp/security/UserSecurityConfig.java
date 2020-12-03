@@ -35,10 +35,11 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
         return (request, response, authException) -> {
             String path = request.getRequestURI();
             if (path.startsWith("/login") || path.startsWith("/api/login") ||
-                path.startsWith("/register") || path.startsWith("/api/registration")) {
+                    path.startsWith("/register") || path.startsWith("/api/registration")) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            } else {
+                response.sendRedirect("/login.html");
             }
-            request.getRequestDispatcher("/login.html").forward(request, response);
         };
     }
 
@@ -72,7 +73,6 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers("/admin**").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
                 .antMatchers("/api/users").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
-                //.antMatchers("/api/roles").hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
 
                 .antMatchers("/shop**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
                 .antMatchers("/api/order**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
