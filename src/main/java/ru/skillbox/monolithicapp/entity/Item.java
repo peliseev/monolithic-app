@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "item")
+@Table(name = "items")
 @Getter
 @Setter
 @ToString(exclude = "orders")

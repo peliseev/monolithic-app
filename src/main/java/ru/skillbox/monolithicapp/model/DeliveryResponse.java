@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class DeliveryResponse {
-    String currierName;
-    EOrderStatus orderStatus;
-    String orderStatusText;
+    private String currierName;
+    private EOrderStatus orderStatus;
+    private String orderStatusText;
 
     public DeliveryResponse(EOrderStatus orderStatus, String orderStatusText) {
         this.orderStatus = orderStatus;

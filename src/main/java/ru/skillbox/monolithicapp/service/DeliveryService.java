@@ -2,7 +2,7 @@ package ru.skillbox.monolithicapp.service;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ru.skillbox.monolithicapp.entity.Customer;
+import ru.skillbox.monolithicapp.entity.User;
 import ru.skillbox.monolithicapp.entity.Order;
 import ru.skillbox.monolithicapp.exception.OrderNotFoundException;
 import ru.skillbox.monolithicapp.exception.OrderСannotBeDeliveredException;
@@ -34,7 +34,7 @@ public class DeliveryService {
     public DeliveryResponse carryOrder(int orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
-        Customer courier = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User courier = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (order.getStatus() != EOrderStatus.ORDER_PAID) {
             throw new OrderСannotBeDeliveredException();
@@ -46,7 +46,7 @@ public class DeliveryService {
 
         return new DeliveryResponse(courier.getFirstName() + " " + courier.getLastName(),
                 order.getStatus(),
-                order.getStatus().getHumanReadable());
+                order.getStatus().getHumanReadableText());
     }
 
     public DeliveryResponse deliver(int orderId) {
@@ -59,6 +59,6 @@ public class DeliveryService {
 
         order.setStatus(EOrderStatus.ORDER_DELIVERED);
 
-        return new DeliveryResponse(order.getStatus(), order.getStatus().getHumanReadable());
+        return new DeliveryResponse(order.getStatus(), order.getStatus().getHumanReadableText());
     }
 }

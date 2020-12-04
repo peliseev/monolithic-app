@@ -5,8 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import ru.skillbox.monolithicapp.entity.Customer;
-import ru.skillbox.monolithicapp.model.ERole;
+import ru.skillbox.monolithicapp.model.EUserRole;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -16,8 +15,8 @@ import java.util.Collection;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "role")
-public class Role implements GrantedAuthority {
+@Table(name = "roles")
+public class UserRole implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,22 +24,22 @@ public class Role implements GrantedAuthority {
 
     @Column(name = "name")
     @Enumerated(EnumType.STRING)
-    private ERole name;
+    private EUserRole name;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "customer_roles",
+            name = "user_roles",
             joinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "id")},
-            inverseJoinColumns = { @JoinColumn(name = "customer_id", referencedColumnName = "id")}
+            inverseJoinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id")}
     )
-    private Collection<Customer> customers;
+    private Collection<User> users;
 
     @Override
     public String getAuthority() {
         return getName().name();
     }
 
-    public ERole getName() {
+    public EUserRole getName() {
         return this.name;
     }
 }

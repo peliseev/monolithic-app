@@ -8,7 +8,7 @@ import ru.skillbox.monolithicapp.exception.*;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-    @ExceptionHandler(CustomerAlreadyExistException.class)
+    @ExceptionHandler(UserAlreadyExistException.class)
     protected ResponseEntity<?> handleCustomerAlreadyExistException() {
         return ResponseEntity.status(409).body("Такой пользователь уже существует");
     }

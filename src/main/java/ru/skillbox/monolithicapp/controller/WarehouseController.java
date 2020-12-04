@@ -43,17 +43,17 @@ public class WarehouseController {
         return ResponseEntity.ok(responseList);
     }
 
-    @PostMapping("/item")
+    @PostMapping("item")
     public ResponseEntity<Integer> addItem(@RequestBody ItemView itemToAdd) {
         return ResponseEntity.ok(warehouseService.addItem(itemToAdd));
     }
 
-    @PutMapping("/items")
+    @PutMapping("items")
     public void updateItems(@RequestBody List<ItemView> itemView) {
         warehouseService.updateItems(itemView);
     }
 
-    @DeleteMapping("/item/{id}")
+    @DeleteMapping("item/{id}")
     public void deleteItem(@PathVariable int id) {
         warehouseService.deleteItem(id);
     }

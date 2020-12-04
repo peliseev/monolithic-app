@@ -3,50 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <title>12 Стульев</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand">12 Стульев</a>
-    <button class="navbar-toggler" 
-            type="button" 
-            data-toggle="collapse" 
-            data-target="#navbarSupportedContent" 
-            aria-controls="navbarSupportedContent" 
-            aria-expanded="false" 
-            aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-  
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="shop.html">Магазин </a>
-        </li>
-        <li class="nav-item ">
-          <a class="nav-link" href="orders.html">Заказы </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="warehouse.html">Склад </a>
-        </li>        
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Доставка <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="login.html">Логин </a>
-        </li>
-      </ul>
-    </div>
-</nav>
 <body>
-    <div class="container d-flex flex-column" id="app">
+<div id="app">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand">12 Стульев</a>
+        <button class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="adminPanel.html" v-if="roles.includes('ROLE_ADMIN')">Панель
+                        администратора</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="shop.html" v-if="roles.includes('ROLE_CUSTOMER')">Магазин</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="orders.html"
+                       v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">
+                        Заказы <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="delivery.html" v-if="roles.includes('ROLE_DELIVER')">Доставка <span
+                            class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="warehouse.html" v-if="roles.includes('ROLE_SUPPLIER')">Склад</a>
+                </li>
+            </ul>
+
+            <ul class="nav pull-right">
+                <li>
+                    <button type="button"
+                            class="btn text-dark navbar-brand"
+                            @click="logOut"
+                    >Выйти
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <template v-if="logoutSuccess">
+        <div class="alert alert-primary" authorities="alert" align="center">Вы успешно вышли из системы и
+            будете направлены на страницу входа через {{redirectTimeout}} секунды!
+        </div>
+        <div class="progress" style="height: 2px;">
+            <div id="redirect-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+        </div>
+    </template>
+
+    <div class="container d-flex flex-column">
         <div class="card my-4" v-for="order in orders" :key="order.id">
             <div class="card-header d-flex justify-content-between">
                 <h2 class="mb-0">
                     Заказ №{{ order.id }}
-                </h2>                
-                
+                </h2>
+
                 <div class="alert" :class="status(order)">
                     <b>{{ order.statusText }}</b>
                 </div>
@@ -58,8 +84,8 @@
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th> Наименование </th>
-                                    <th> Количество </th>
+                                    <th> Наименование</th>
+                                    <th> Количество</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -71,24 +97,25 @@
                             </table>
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <button type="button" 
+                                    <button type="button"
                                             class="btn btn-success"
                                             v-if="order.status == 'ORDER_PAID'"
                                             @click="carry(order)">
-                                            Взять заказ
+                                        Взять заказ
                                     </button>
-                                    <button type="button" 
+                                    <button type="button"
                                             class="btn btn-success"
                                             v-if="order.status == 'ORDER_COMING'"
                                             @click="daliver(order)">
-                                            Заказ доставлен
+                                        Заказ доставлен
                                     </button>
                                     <div class="alert alert-danger" role="alert" v-if="order.error">
                                         Oops!
                                     </div>
                                 </div>
                                 <div>
-                                    Клиент: <b>{{ order.customerFullName }}</b> по адресу <b>{{ order.customerAddress }}</b>
+                                    Клиент: <b>{{ order.customerFullName }}</b> по адресу <b>{{ order.customerAddress
+                                    }}</b>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end" v-if="order.status == 'ORDER_COMING'">
@@ -102,22 +129,32 @@
             </div>
         </div>
     </div>
+</div>
 </body>
 
 <script>
     var app = new Vue({
         el: "#app",
         data: {
+            roles: [],
             orders: [],
+
+            logoutSuccess: false,
+            REDIRECT_TIMEOUT: 3,
+            redirectTimeout: 3
         },
         beforeCreate() {
+            axios.get("api/user/roles")
+                .then(response => {
+                    this.roles = response.data.roles
+                })
             axios.get("/api/delivery/orders")
-            .then(response => {
-                this.orders = response.data.map(order => ({...order, error: false}));
-            })
-            .catch(error => {
-                this.errors.push(error)
-            })
+                .then(response => {
+                    this.orders = response.data.map(order => ({...order, error: false}));
+                })
+                .catch(error => {
+                    this.errors.push(error)
+                })
         },
         methods: {
             status(order) {
@@ -137,26 +174,47 @@
             },
             carry(order) {
                 axios.post("/api/delivery/order/" + order.id + "/carry")
-                .then(response => {
-                    console.log(response)
-                    if (response.status == 200) {
-                        order.status = response.data.orderStatus;
-                        order.statusText = response.data.orderStatusText;
-                        order.courierFullName = response.data.currierName;
-                    }
-                })
-                .catch(error => this.errors.push(error))
+                    .then(response => {
+                        console.log(response)
+                        if (response.status == 200) {
+                            order.status = response.data.orderStatus;
+                            order.statusText = response.data.orderStatusText;
+                            order.courierFullName = response.data.currierName;
+                        }
+                    })
+                    .catch(error => this.errors.push(error))
             },
             daliver(order) {
                 axios.post("/api/delivery/order/" + order.id + "/deliver")
-                .then(response => {
-                    console.log(response)
-                    if (response.status == 200) {
-                        order.status = response.data.orderStatus;
-                        order.statusText = response.data.orderStatusText;
-                    }
-                })
-                .catch(error => this.errors.push(error))                
+                    .then(response => {
+                        console.log(response)
+                        if (response.status == 200) {
+                            order.status = response.data.orderStatus;
+                            order.statusText = response.data.orderStatusText;
+                        }
+                    })
+                    .catch(error => this.errors.push(error))
+            },
+            logOut() {
+                axios.post("/api/user/logout")
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.logoutSuccess = true
+                            this.error = false
+
+                            setInterval(() => {
+                                this.redirectTimeout--
+                                document.getElementById('redirect-progress-bar').style.width =
+                                    ((this.REDIRECT_TIMEOUT - this.redirectTimeout) / this.REDIRECT_TIMEOUT) * 100 + '%';
+                            }, 1000);
+
+                            setTimeout(() => window.location.href = "/login.html",
+                                this.REDIRECT_TIMEOUT * 1000)
+                        } else {
+                            this.error = true
+                        }
+                    })
+                    .catch(err => this.error = true)
             }
         }
     })

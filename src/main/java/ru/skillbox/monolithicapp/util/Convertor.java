@@ -2,9 +2,7 @@ package ru.skillbox.monolithicapp.util;
 
 import ru.skillbox.monolithicapp.entity.Order;
 import ru.skillbox.monolithicapp.entity.OrderItem;
-import ru.skillbox.monolithicapp.model.DeliveryOrderView;
-import ru.skillbox.monolithicapp.model.EOrderStatus;
-import ru.skillbox.monolithicapp.model.ItemView;
+import ru.skillbox.monolithicapp.model.*;
 
 import java.util.Comparator;
 import java.util.List;
@@ -19,21 +17,20 @@ public class Convertor {
                 orderItem.getCount());
     }
 
-    public static List<DeliveryOrderView> orderToDeliveryOrder(List<Order> order) {
-        return order.stream()
-                .map(o -> {
+    public static List<DeliveryOrderView> orderToDeliveryOrder(List<Order> orders) {
+        return orders.stream()
+                .map(order -> {
                     DeliveryOrderView deliveryOrderView = new DeliveryOrderView();
-                    deliveryOrderView.setId(o.getId());
-                    deliveryOrderView.setStatus(o.getStatus());
-                    deliveryOrderView.setStatusText(o.getStatus().getHumanReadable());
-                    deliveryOrderView.setCustomerFullName(
-                            o.getCustomer().getFirstName() + " " + o.getCustomer().getLastName());
-                    deliveryOrderView.setCustomerAddress(o.getCustomer().getAddress());
-                    if (o.getStatus() == EOrderStatus.ORDER_COMING) {
+                    deliveryOrderView.setId(order.getId());
+                    deliveryOrderView.setStatus(order.getStatus());
+                    deliveryOrderView.setStatusText(order.getStatus().getHumanReadableText());
+                    deliveryOrderView.setCustomerFullName(order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName());
+                    deliveryOrderView.setCustomerAddress(order.getCustomer().getAddress());
+                    if (order.getStatus() == EOrderStatus.ORDER_COMING) {
                         deliveryOrderView.setCourierFullName(
-                                o.getCourier().getFirstName() + " " + o.getCourier().getLastName());
+                                order.getCourier().getFirstName() + " " + order.getCourier().getLastName());
                     }
-                    deliveryOrderView.setItems(o.getItems().stream()
+                    deliveryOrderView.setItems(order.getItems().stream()
                             .map(Convertor::orderItemToItemView)
                             .collect(Collectors.toList()));
                     return deliveryOrderView;

@@ -6,13 +6,13 @@ public enum EOrderStatus {
     ORDER_COMING("Ожидайте доставки"),
     ORDER_DELIVERED("Доставлен");
 
-    private final String humanReadable;
+    private final String humanReadableText;
 
-    EOrderStatus(String humanReadable) {
-        this.humanReadable = humanReadable;
+    EOrderStatus(String humanReadableText) {
+        this.humanReadableText = humanReadableText;
     }
 
-    public String getHumanReadable() {
-        return humanReadable;
+    public String getHumanReadableText() {
+        return humanReadableText;
     }
 }

@@ -24,11 +24,11 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private User customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courier_id")
-    private Customer courier;
+    private User courier;
 
     @Column(name = "customer_id", insertable = false, updatable = false)
     private int customerId;

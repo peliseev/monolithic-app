@@ -5,22 +5,21 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = "orders")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(exclude = "orders")
-public class Customer implements UserDetails {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @EqualsAndHashCode.Include
     private int id;
 
     @Column(name = "username", nullable = false)
@@ -32,13 +31,13 @@ public class Customer implements UserDetails {
     @Transient
     private String passwordConfirm;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "customer_roles",
-            joinColumns = { @JoinColumn(name = "customer_id", referencedColumnName = "id") },
+            name = "user_roles",
+            joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
             inverseJoinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "id") }
     )
-    private Collection<Role> roles = new HashSet<>();
+    private Collection<UserRole> roles = new HashSet<>();
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

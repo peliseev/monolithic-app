@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SimpleErrorController implements ErrorController {
 
-    @RequestMapping("/error")
+    @RequestMapping("error")
     private String handleError() {
         return "404.html";
     }
