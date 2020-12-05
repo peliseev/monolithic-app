@@ -44,7 +44,7 @@
                    placeholder="Логин"
                    required="required"
                    v-model="login"
-                   :readonly="loginSuccess"
+                   :readonly="loginSuccess || passwordMustBeChanged"
             >
         </div>
         <div class="form-group">
@@ -53,7 +53,7 @@
                    placeholder="Пароль"
                    required="required"
                    v-model="password"
-                   :readonly="loginSuccess"
+                   :readonly="loginSuccess || passwordMustBeChanged"
             >
         </div>
         <div class="form-group" v-if="passwordMustBeChanged">
@@ -62,6 +62,14 @@
                    placeholder="Новый пароль"
                    required="required"
                    v-model="newPassword"
+            >
+        </div>
+        <div class="form-group" v-if="passwordMustBeChanged">
+            <input type="password"
+                   class="form-control"
+                   placeholder="Подтверждение нового пароля"
+                   required="required"
+                   v-model="newPasswordConfirm"
             >
         </div>
         <div class="form-group" v-if="passwordMustBeChanged">
@@ -85,20 +93,23 @@
         <p class="text-center"><a href="/registration.html">Зарегистрироваться</a></p>
     </div>
 
-    <div class="alert alert-primary" authorities="alert" align="center" v-if="loginSuccess && passwordMustBeChanged">
+    <div class="alert alert-primary" authorities="alert" align="center" v-if="passwordMustBeChanged">
         Вам необходимо сменить пароль.
     </div>
-    <div class="alert alert-primary" authorities="alert" align="center" v-if="loginSuccess && !passwordMustBeChanged">
+    <div class="alert alert-primary" authorities="alert" align="center" v-if="passwordHasBeenChanged">
+        Вы успешно сменили пароль.
+    </div>
+    <div class="alert alert-primary" authorities="alert" align="center" v-if="loginSuccessShowPopup">
         Вы успешно вошли в систему.
     </div>
     <div class="alert alert-primary" authorities="alert" align="center" v-if="logoutSuccess">
         Вы успешно вышли из системы.
     </div>
-    <div class="alert alert-danger" authorities="alert" align="center" v-if="error">
-        Что-то пошло не так.<br/>Попробуйте зайти позднее.
-    </div>
+    <div class="alert alert-danger" authorities="alert" align="center" v-if="error">{{ errorMessage }}</div>
 
-    <div class="d-flex flex-column" v-if="success">
+    <div class="d-flex flex-column" v-if="loginSuccess && !passwordMustBeChanged">
+        <h5 style="margin-top: 20px; margin-bottom: 10px">Доступный функционал:</h5>
+
         <a class="btn btn-info"
            href="/users.html"
            authorities="button"
@@ -149,16 +160,20 @@
             login: null,
             password: null,
             newPassword: null,
+            newPasswordConfirm: null,
             passwordMustBeChanged: false,
+            passwordHasBeenChanged: false,
+
+            error: false,
+            errorMessage: null,
+            DEFAULT_ERROR_MESSAGE: "Что-то пошло не так.",
+
             success: false,
             loginSuccess: false,
+            loginSuccessShowPopup: false,
             logoutSuccess: false,
-            error: false,
-            roles: {
-                includes: function () {
-                    return false;
-                }
-            }
+
+            roles: []
         },
         beforeCreate() {
             axios.get("/api/user/roles")
@@ -173,36 +188,61 @@
                 axios.post("/api/user/login", {login: this.login, password: this.password})
                     .then(response => {
                         if (response.status === 200) {
-                            this.success = true
-                            this.loginSuccess = true
-                            this.logoutSuccess = false
                             this.error = false
-                            this.roles = response.data.roles
-                            this.passwordMustBeChanged = response.data.passwordMustBeChanged
-                        } else {
-                            this.error = true
-                        }
-                    })
-                    .catch(err => this.error = true)
-            },
-            changePassword() {
-                axios.post("/api/user/loginWithChangePassword", {login: this.login, oldPassword: this.password, newPassword: this.newPassword})
-                    .then(response => {
-                        if (response.status === 200) {
                             this.success = true
-                            this.loginSuccess = true
-                            this.logoutSuccess = false
-                            this.error = false
                             this.roles = response.data.roles
 
-                            this.password = this.newPassword
-                            this.newPassword = null
-                            this.passwordMustBeChanged = false
+                            this.passwordMustBeChanged = response.data.passwordMustBeChanged
+                            this.loginSuccess = !this.passwordMustBeChanged
+                            if (this.loginSuccess) {
+                                this.loginSuccessShowPopup = true
+                                setTimeout(() => this.loginSuccessShowPopup = false, 3000)
+                            }
                         } else {
                             this.error = true
+                            this.errorMessage = this.DEFAULT_ERROR_MESSAGE
                         }
                     })
-                    .catch(err => this.error = true)
+                    .catch(err => {
+                        this.error = true
+                        this.errorMessage = this.DEFAULT_ERROR_MESSAGE
+                    })
+            },
+            changePassword() {
+                if (this.newPassword === this.newPasswordConfirm) {
+                    axios.post("/api/user/password/change", {
+                        login: this.login,
+                        oldPassword: this.password,
+                        newPassword: this.newPassword
+                    })
+                        .then(response => {
+                            if (response.status === 200) {
+                                this.error = false
+                                this.success = true
+                                this.loginSuccess = false
+
+                                this.password = this.newPassword
+                                this.newPassword = null
+                                this.newPasswordConfirm = null
+                                this.passwordMustBeChanged = false
+                                this.passwordHasBeenChanged = true
+
+                                setTimeout(() => this.passwordHasBeenChanged = false, 3000)
+                            } else {
+                                this.error = true
+                                this.errorMessage = this.DEFAULT_ERROR_MESSAGE
+                            }
+                        })
+                        .catch(err => {
+                            this.error = true
+                            this.errorMessage = this.DEFAULT_ERROR_MESSAGE
+                        })
+                } else {
+                    this.error = true
+                    this.errorMessage = "Пароли не совпадают"
+
+                    setTimeout(() => this.error = false, 3000)
+                }
             },
             logOut() {
                 axios.post("/api/user/logout")
@@ -210,14 +250,20 @@
                         if (response.status === 200) {
                             this.error = false
                             this.success = true
+                            this.roles = []
                             this.loginSuccess = false
                             this.logoutSuccess = true
-                            this.roles = []
+
+                            setTimeout(() => this.logoutSuccess = false, 3000)
                         } else {
                             this.error = true
+                            this.errorMessage = this.DEFAULT_ERROR_MESSAGE
                         }
                     })
-                    .catch(err => this.error = true)
+                    .catch(err => {
+                        this.error = true
+                        this.errorMessage = this.DEFAULT_ERROR_MESSAGE
+                    })
             }
         }
     })

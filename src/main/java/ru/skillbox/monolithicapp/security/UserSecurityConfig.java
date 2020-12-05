@@ -34,7 +34,8 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) -> {
             String path = request.getRequestURI();
-            if (path.startsWith("/login") || path.startsWith("/api/user/login") ||
+            if (path.startsWith("/api/user/password/change") ||
+                path.startsWith("/login") || path.startsWith("/api/user/login") ||
                 path.startsWith("/register") || path.startsWith("/api/user/registration")) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
             } else {
@@ -79,7 +80,7 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/warehouse**", "/api/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name())
                 .antMatchers("/delivery**", "/api/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name())
 
-                .antMatchers("/login**", "/api/user/login**").permitAll()
+                .antMatchers("/login**", "/api/user/login**", "/api/user/password/change").permitAll()
                 .antMatchers("/registration**", "/api/user/register").permitAll()
                 .antMatchers("/h2-console**").permitAll()
 

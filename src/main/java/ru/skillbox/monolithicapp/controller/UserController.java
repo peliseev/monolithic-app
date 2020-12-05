@@ -44,15 +44,6 @@ public class UserController {
                 user.getRoles().stream().map(UserRole::getAuthority).collect(Collectors.toSet())));
     }
 
-    @PostMapping("loginWithChangePassword")
-    public ResponseEntity<UserRolesResponse> logInWithChangePassword(HttpServletRequest request,
-                                                                     HttpServletResponse response,
-                                                                     @RequestBody LoginAndChangePasswordView logInView) {
-        User user = userService.logIn(request, response, logInView.getLogin(), logInView.getOldPassword());
-        userService.changePassword(user, logInView.getNewPassword());
-        return ok(new UserRolesResponse(user.getRoles().stream().map(UserRole::getAuthority).collect(Collectors.toSet())));
-    }
-
     @PostMapping("logout")
     public ResponseEntity<Void> logOut(HttpServletRequest request,
                                        HttpServletResponse response) {
@@ -94,6 +85,15 @@ public class UserController {
     @PostMapping("{id}/password/reset")
     public ResponseEntity<Void> resetUserPassword(@PathVariable int id) {
         userService.resetPassword(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("password/change")
+    public ResponseEntity<String> changePassword(@RequestBody LoginAndChangePasswordView logInView) {
+        if (!userService.isPasswordValid(logInView.getLogin(), logInView.getOldPassword())) {
+            return ResponseEntity.status(403).body("Указан неверный текущий пароль.");
+        }
+        userService.changePassword(logInView.getLogin(), logInView.getNewPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

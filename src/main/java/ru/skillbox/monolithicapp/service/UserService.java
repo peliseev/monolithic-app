@@ -5,7 +5,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,11 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("Doesn't have user with %s", name));
         }
         return user;
+    }
+
+    public boolean isPasswordValid(String login, String password) {
+        User user = userRepository.findByUsername(login);
+        return passwordEncoder.matches(password, user.getPassword());
     }
 
     public User logIn(HttpServletRequest request, HttpServletResponse response, String login, String password) {
@@ -134,8 +140,9 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public void changePassword(User user, String password) {
-        user.setPassword(passwordEncoder.encode(password));
+    public void changePassword(String login, String newPassword) {
+        User user = userRepository.findByUsername(login);
+        user.setPassword(passwordEncoder.encode(newPassword));
         user.setPasswordMustBeChanged(false);
         userRepository.save(user);
     }
