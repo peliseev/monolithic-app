@@ -1,7 +1,6 @@
 <!doctype html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>12 стульев</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -57,7 +56,21 @@
                    :readonly="loginSuccess"
             >
         </div>
-        <div class="form-group" v-if="!loginSuccess">
+        <div class="form-group" v-if="passwordMustBeChanged">
+            <input type="password"
+                   class="form-control"
+                   placeholder="Новый пароль"
+                   required="required"
+                   v-model="newPassword"
+            >
+        </div>
+        <div class="form-group" v-if="passwordMustBeChanged">
+            <button class="btn btn-primary btn-block"
+                    @click="changePassword"
+            >Сменить пароль
+            </button>
+        </div>
+        <div class="form-group" v-if="!loginSuccess && !passwordMustBeChanged">
             <button class="btn btn-primary btn-block"
                     @click="logIn"
             >Войти
@@ -72,17 +85,33 @@
         <p class="text-center"><a href="/registration.html">Зарегистрироваться</a></p>
     </div>
 
-    <div class="alert alert-primary" authorities="alert" align="center" v-if="loginSuccess" key="input1">Вы успешно вошли в систему.</div>
-    <div class="alert alert-primary" authorities="alert" align="center" v-if="logoutSuccess">Вы успешно вышли из системы.</div>
-    <div class="alert alert-danger" authorities="alert" align="center" v-if="error" key="input3">Что-то пошло не так.<br/>Попробуйте зайти позднее.</div>
+    <div class="alert alert-primary" authorities="alert" align="center" v-if="loginSuccess && passwordMustBeChanged">
+        Вам необходимо сменить пароль.
+    </div>
+    <div class="alert alert-primary" authorities="alert" align="center" v-if="loginSuccess && !passwordMustBeChanged">
+        Вы успешно вошли в систему.
+    </div>
+    <div class="alert alert-primary" authorities="alert" align="center" v-if="logoutSuccess">
+        Вы успешно вышли из системы.
+    </div>
+    <div class="alert alert-danger" authorities="alert" align="center" v-if="error">
+        Что-то пошло не так.<br/>Попробуйте зайти позднее.
+    </div>
 
     <div class="d-flex flex-column" v-if="success">
         <a class="btn btn-info"
-           href="/adminPanel.html"
+           href="/users.html"
            authorities="button"
            v-if="(roles !== undefined) && roles.includes('ROLE_ADMIN')"
            style="margin-bottom: 5pt;"
-        >Меню администратора</a>
+        >Пользователи</a>
+
+        <a class="btn btn-info"
+           href="/registrationByAdmin.html"
+           authorities="button"
+           v-if="(roles !== undefined) && roles.includes('ROLE_ADMIN')"
+           style="margin-bottom: 5pt;"
+        >Регистрация пользователя</a>
 
         <a class="btn btn-info"
            href="/shop.html"
@@ -119,12 +148,16 @@
         data: {
             login: null,
             password: null,
+            newPassword: null,
+            passwordMustBeChanged: false,
             success: false,
             loginSuccess: false,
             logoutSuccess: false,
             error: false,
             roles: {
-                includes: function () { return false; }
+                includes: function () {
+                    return false;
+                }
             }
         },
         beforeCreate() {
@@ -145,6 +178,26 @@
                             this.logoutSuccess = false
                             this.error = false
                             this.roles = response.data.roles
+                            this.passwordMustBeChanged = response.data.passwordMustBeChanged
+                        } else {
+                            this.error = true
+                        }
+                    })
+                    .catch(err => this.error = true)
+            },
+            changePassword() {
+                axios.post("/api/user/loginWithChangePassword", {login: this.login, oldPassword: this.password, newPassword: this.newPassword})
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.success = true
+                            this.loginSuccess = true
+                            this.logoutSuccess = false
+                            this.error = false
+                            this.roles = response.data.roles
+
+                            this.password = this.newPassword
+                            this.newPassword = null
+                            this.passwordMustBeChanged = false
                         } else {
                             this.error = true
                         }
@@ -155,13 +208,11 @@
                 axios.post("/api/user/logout")
                     .then(response => {
                         if (response.status === 200) {
-                            this.success = true
-                            this.logoutSuccess = true
-                            this.loginSuccess = false
                             this.error = false
-                            this.roles = {
-                                includes: function () { return false; }
-                            }
+                            this.success = true
+                            this.loginSuccess = false
+                            this.logoutSuccess = true
+                            this.roles = []
                         } else {
                             this.error = true
                         }

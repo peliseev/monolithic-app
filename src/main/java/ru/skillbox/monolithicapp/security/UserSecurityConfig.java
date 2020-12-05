@@ -71,13 +71,15 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint()).and()
                 .authorizeRequests()
 
-                .antMatchers("/admin**", "/api/user/all", "/api/user/delete", "/api/user/password**")
+                .antMatchers("/users**", "/registrationByAdmin**", "/api/user/all", "api/user/role/all", "/api/user/\\d+/delete",
+                        "/api/user/\\d+/password/reset", "api/user/registerByAdmin")
                 .hasAnyAuthority(EUserRole.ROLE_ADMIN.name())
+
                 .antMatchers("/shop**", "/api/order**").hasAnyAuthority(EUserRole.ROLE_CUSTOMER.name())
                 .antMatchers("/warehouse**", "/api/warehouse**").hasAnyAuthority(EUserRole.ROLE_SUPPLIER.name())
                 .antMatchers("/delivery**", "/api/delivery**").hasAnyAuthority(EUserRole.ROLE_DELIVER.name())
 
-                .antMatchers("/login**", "/api/user/login").permitAll()
+                .antMatchers("/login**", "/api/user/login**").permitAll()
                 .antMatchers("/registration**", "/api/user/register").permitAll()
                 .antMatchers("/h2-console**").permitAll()
 

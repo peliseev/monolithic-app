@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserViewForAdmin {
+public class UserViewForAdminResponse {
     private Integer id;
     private String login;
     private String firstName;
