@@ -17,9 +17,11 @@ import javax.transaction.Transactional;
 public class PaymentService {
 
     private final OrderRepository orderRepository;
+    private final NotificationService notificationService;
 
-    public PaymentService(OrderRepository orderRepository) {
+    public PaymentService(OrderRepository orderRepository, NotificationService notificationService) {
         this.orderRepository = orderRepository;
+        this.notificationService = notificationService;
     }
 
     public CustomerOrderView pay(CustomerOrderView customerOrderView) {
@@ -33,6 +35,8 @@ public class PaymentService {
 
         order.setStatus(EOrderStatus.ORDER_PAID);
         orderRepository.save(order);
+
+        notificationService.sendNotification(order);
 
         customerOrderView.setStatus(order.getStatus());
         customerOrderView.setStatusText(order.getStatus().getHumanReadableText());

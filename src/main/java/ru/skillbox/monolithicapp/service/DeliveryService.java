@@ -20,14 +20,18 @@ import java.util.List;
 public class DeliveryService {
 
     private final OrderRepository orderRepository;
+    private final NotificationService notificationService;
 
-    public DeliveryService(OrderRepository orderRepository) {
+    public DeliveryService(OrderRepository orderRepository, NotificationService notificationService) {
         this.orderRepository = orderRepository;
+        this.notificationService = notificationService;
     }
 
     public List<DeliveryOrderView> findOrdersForDelivery() {
+        User courier = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         List<Order> ordersForDelivery =
-                orderRepository.findByStatus(EOrderStatus.ORDER_PAID, EOrderStatus.ORDER_COMING);
+                orderRepository.findByStatusAndCourierId(EOrderStatus.ORDER_PAID, EOrderStatus.ORDER_COMING, courier.getId());
         return Convertor.orderToDeliveryOrder(ordersForDelivery);
     }
 
@@ -44,6 +48,8 @@ public class DeliveryService {
         order.setStatus(EOrderStatus.ORDER_COMING);
         orderRepository.save(order);
 
+        notificationService.sendNotification(order);
+
         return new DeliveryResponse(courier.getFirstName() + " " + courier.getLastName(),
                 order.getStatus(),
                 order.getStatus().getHumanReadableText());
@@ -58,6 +64,8 @@ public class DeliveryService {
         }
 
         order.setStatus(EOrderStatus.ORDER_DELIVERED);
+
+        notificationService.sendNotification(order);
 
         return new DeliveryResponse(order.getStatus(), order.getStatus().getHumanReadableText());
     }

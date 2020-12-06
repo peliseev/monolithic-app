@@ -23,7 +23,10 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "join fetch o.customer " +
             "join fetch i.item " +
             "where o.status = :status1 "+
-            "or o.status = :status2")
-    List<Order> findByStatus(@Param("status1") EOrderStatus status1, @Param("status2") EOrderStatus status2);
+            "or (o.status = :status2 " +
+            "and o.courierId = :courierId)")
+    List<Order> findByStatusAndCourierId(@Param("status1") EOrderStatus status1,
+                             @Param("status2") EOrderStatus status2,
+                             @Param("courierId") Integer courierId);
 
 }

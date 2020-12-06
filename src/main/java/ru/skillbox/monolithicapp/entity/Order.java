@@ -31,7 +31,7 @@ public class Order {
     private User courier;
 
     @Column(name = "customer_id", insertable = false, updatable = false)
-    private int customerId;
+    private Integer customerId;
 
     @Column(name = "courier_id", insertable = false, updatable = false)
     private Integer courierId;

@@ -1,18 +1,13 @@
-logging:
-  level:
-    root: DEBUG
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
-
 server:
   port: 8080
   servlet:
     context-path: /
+
+app:
+  template:
+    order-paid: "%s: Ваш заказ №%d успешно оплачен, ожидайте доставки."
+    order-coming: "%s: Ваш заказ будет доставлен в теченее 3 дней. Курьер: %s"
+    order-delivered: "%s: Спасибо, что воспользовались нашими услугами!"
 
 spring:
   datasource:
@@ -20,14 +15,7 @@ spring:
     password:
     url: jdbc:h2:mem:testdb
     username: sa
-  h2:
-    console:
-      enabled: true
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true

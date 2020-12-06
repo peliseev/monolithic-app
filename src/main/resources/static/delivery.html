@@ -35,7 +35,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="orders.html"
-                       v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">
+                       v-if="roles.includes('ROLE_CUSTOMER')">
                         Заказы <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item active">
@@ -184,6 +184,7 @@
                             order.status = response.data.orderStatus;
                             order.statusText = response.data.orderStatusText;
                             order.courierFullName = response.data.currierName;
+                            this.orders.sort((a, b) => a.status === "ORDER_PAID" ? -1 : 1)
                         }
                     })
                     .catch(error => this.errors.push(error))
