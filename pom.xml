@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.skillbox</groupId>
 	<artifactId>monolithic-app</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>monolithic-app</name>
 	<description>Monolith example for Software Architect course</description>
 

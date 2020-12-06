@@ -24,6 +24,7 @@ public class NotificationService {
                 break;
             case ORDER_COMING:
                 System.out.println(String.format(orderComingTemplate, clientEmail,
+                        order.getId(),
                         order.getCourier().getFirstName() + " " + order.getCourier().getLastName()));
                 break;
             case ORDER_DELIVERED:
