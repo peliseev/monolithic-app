@@ -1,7 +1,5 @@
 package ru.skillbox.monolithicapp.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +13,8 @@ import ru.skillbox.monolithicapp.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -31,14 +30,18 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<UserRoles> logIn(HttpServletRequest request,
-                                           HttpServletResponse response,
-                                           @RequestBody LogInView logInView) {
-        User user = userService.logIn(request, response, logInView);
-        return ok(new UserRoles(
-                user.getRoles().stream()
-                        .map(UserRole::getAuthority)
-                        .collect(Collectors.toSet())));
+    public ResponseEntity<LoginResponse> logIn(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @RequestBody LogInView logInView) {
+        User user = userService.logIn(request, response, logInView.getLogin(), logInView.getPassword());
+
+        if (user.isPasswordMustBeChanged()) {
+            userService.logOut(request, response);
+            return ok(new LoginResponse(true, Collections.emptySet()));
+        }
+
+        return ok(new LoginResponse(false,
+                user.getRoles().stream().map(UserRole::getAuthority).collect(Collectors.toSet())));
     }
 
     @PostMapping("logout")
@@ -51,25 +54,26 @@ public class UserController {
     @PostMapping("register")
     public void register(@RequestBody UserView registrationData)
             throws UserAlreadyExistException, PasswordDoestMatchException {
-        userService.register(registrationData);
+        userService.register(registrationData, EUserRole.ROLE_CUSTOMER);
+    }
+
+    @PostMapping("registerByAdmin")
+    public void registerByAdmin(@RequestBody UserViewForAdminRequest registrationData)
+            throws UserAlreadyExistException, PasswordDoestMatchException {
+        userService.register(registrationData, registrationData.getRole());
     }
 
     @GetMapping("roles")
-    public ResponseEntity<UserRoles> getUserRoles(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserRolesResponse> getUserRoles(@AuthenticationPrincipal User user) {
         if (user == null) {
-            return ok(new UserRoles(Collections.singleton(EUserRole.ROLE_ANONYMOUS.name())));
+            return ok(new UserRolesResponse(Collections.singleton(EUserRole.ROLE_ANONYMOUS.name())));
         }
-
-        return ok(new UserRoles(
-                user.getRoles().stream()
-                        .map(UserRole::getAuthority)
-                        .collect(Collectors.toSet())));
+        return ok(new UserRolesResponse(user.getRoles().stream().map(UserRole::getAuthority).collect(Collectors.toSet())));
     }
 
-    @PostMapping("{id}/password/change")
-    public ResponseEntity<Void> changeUserPassword(@PathVariable int id, @RequestBody PasswordView passwordView) {
-        userService.changePassword(id, passwordView.getPassword());
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("role/all")
+    public ResponseEntity<UserRolesResponse> getUserRoles() {
+        return ok(new UserRolesResponse(userService.getRoles()));
     }
 
     @PostMapping("{id}/delete")
@@ -78,15 +82,24 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("all")
-    public ResponseEntity<List<UserViewForAdmin>> getAllUsers() {
-        return ResponseEntity.ok(userService.getUsers());
+    @PostMapping("{id}/password/reset")
+    public ResponseEntity<Void> resetUserPassword(@PathVariable int id) {
+        userService.resetPassword(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @AllArgsConstructor
-    @Data
-    protected static class UserRoles {
-        private Set<String> roles;
+    @PostMapping("password/change")
+    public ResponseEntity<String> changePassword(@RequestBody LoginAndChangePasswordView logInView) {
+        if (!userService.isPasswordValid(logInView.getLogin(), logInView.getOldPassword())) {
+            return ResponseEntity.status(403).body("Указан неверный текущий пароль.");
+        }
+        userService.changePassword(logInView.getLogin(), logInView.getNewPassword());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("all")
+    public ResponseEntity<List<UserViewForAdminResponse>> getAllUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 
 }

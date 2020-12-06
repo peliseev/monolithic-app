@@ -39,7 +39,6 @@
 <body>
 <div class="login-form" id="app">
     <div class="form">
-        <h2 class="text-center">Регистрация</h2>
         <div class="form-group">
             <input type="text"
                    class="form-control"
@@ -114,7 +113,7 @@
     </div>
     <div class="d-flex flex-column" v-if="success">
         <div class="alert alert-primary" authorities="alert" align="center">Вы успешно прошли регистрацию и будете
-            направлены на страницу входа через {{sec}} секунды!
+            направлены на страницу входа через {{timeout}} секунды!
         </div>
     </div>
     <div class="alert alert-danger" authorities="alert" align="center" v-if="error">Что-то пошло не так. Попробуйте
@@ -141,18 +140,18 @@
             success: false,
             error: false,
             errorMessage: null,
-            sec: 3
+            timeout: 3
         },
         methods: {
             register() {
                 if (this.registration.password === this.registration.passwordConfirm) {
-                    axios.post("/api/register", this.registration)
+                    axios.post("/api/user/register", this.registration)
                         .then(response => {
                             if (response.status === 200) {
                                 this.success = true
                                 this.error = false
                                 setInterval(() => {
-                                    this.sec--
+                                    this.timeout--
                                 }, 1000);
                                 setTimeout(() => window.location.href = "/login.html",
                                     3000)
@@ -169,6 +168,5 @@
             }
         }
     })
-
 </script>
 </html>

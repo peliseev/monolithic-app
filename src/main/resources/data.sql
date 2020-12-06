@@ -1,9 +1,9 @@
 -- пароли совпадают с именем пользователя
-INSERT INTO USERS (username, password, first_name, last_name, email, address)
-VALUES ('admin', '$2a$10$6pBi.3DnarSyecAQCR9PHejFnlpSuIAuX93eNDcU.ycOzYU7RWKF6', 'Алексей', 'Алексеев', 'a@mail.ru', 'Украина, Киев'),
-       ('customer', '$2a$10$boz8DaebnDv48Fqv4TpPP.aGelSdW1Vln9VRJ3BpPEdLRUagdG/qC', 'Борис', 'Борисов', 'b@mail.ru', 'Россия, Москва'),
-       ('deliver', '$2a$10$uW2u.mpyfD4HBu0d4wUWSefwzVu6lwWt165YO5ffxKSFA6NF4CGOK', 'Валерий', 'Валериев', 'c@mail.ru', 'Россия, Москва'),
-       ('supplier', '$2a$10$4vWrlgoX4jD0ujTEqudAyOcdU1xWQ1IrHf7G3tK72DKXtGzDmh1Le', 'Генадий', 'Генадиев', 'd@mail.ru', 'Беларусь, Минск');
+INSERT INTO USERS (username, password, password_must_be_changed, first_name, last_name, email, address)
+VALUES ('admin', '$2a$10$6pBi.3DnarSyecAQCR9PHejFnlpSuIAuX93eNDcU.ycOzYU7RWKF6', true, 'Алексей', 'Алексеев', 'a@gmail.com', 'Украина, Киев'),
+       ('customer', '$2a$10$boz8DaebnDv48Fqv4TpPP.aGelSdW1Vln9VRJ3BpPEdLRUagdG/qC', false, 'Борис', 'Борисов', 'b@gmail.com', 'Россия, Москва'),
+       ('deliver', '$2a$10$uW2u.mpyfD4HBu0d4wUWSefwzVu6lwWt165YO5ffxKSFA6NF4CGOK', false, 'Валерий', 'Валериев', 'c@gmail.com', 'Россия, Москва'),
+       ('supplier', '$2a$10$4vWrlgoX4jD0ujTEqudAyOcdU1xWQ1IrHf7G3tK72DKXtGzDmh1Le', false, 'Генадий', 'Генадиев', 'd@gmail.com', 'Беларусь, Минск');
 
 INSERT INTO ROLES (name) VALUES
     ('ROLE_ADMIN'),

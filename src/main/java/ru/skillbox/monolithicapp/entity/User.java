@@ -28,8 +28,8 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Transient
-    private String passwordConfirm;
+    @Column(name = "password_must_be_changed", nullable = false)
+    private boolean passwordMustBeChanged;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(

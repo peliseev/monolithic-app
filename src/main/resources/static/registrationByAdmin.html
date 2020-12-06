@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>12 Стульев</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        .login-form {
+            width: 340px;
+            margin: 50px auto;
+            font-size: 15px;
+        }
+
+        .form {
+            margin-bottom: 15px;
+            background: #f7f7f7;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand">12 Стульев</a>
+        <button class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="users.html" v-if="roles.includes('ROLE_ADMIN')">Пользователи</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#" v-if="roles.includes('ROLE_ADMIN')">Создание пользователя <span
+                            class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="shop.html" v-if="roles.includes('ROLE_CUSTOMER')">Магазин</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="orders.html"
+                       v-if="roles.includes('ROLE_CUSTOMER') || roles.includes('ROLE_DELIVER')">Заказы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="delivery.html" v-if="roles.includes('ROLE_DELIVER')">Доставка</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="warehouse.html" v-if="roles.includes('ROLE_SUPPLIER')">Склад</a>
+                </li>
+            </ul>
+
+            <ul class="nav pull-right">
+                <li>
+                    <button type="button"
+                            class="btn text-dark navbar-brand"
+                            @click="logOut"
+                    >Выйти
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <template v-if="logoutSuccess">
+        <div class="alert alert-primary" authorities="alert" align="center">Вы успешно вышли из системы и
+            будете направлены на страницу входа через {{redirectTimeout}} секунды!
+        </div>
+        <div class="progress" style="height: 2px;">
+            <div id="redirect-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+        </div>
+    </template>
+
+    <div class="login-form">
+        <div class="form">
+            <div class="form-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Логин"
+                       required="required"
+                       v-model="registration.login"
+                >
+            </div>
+            <div class="form-group">
+                <input type="password"
+                       class="form-control"
+                       placeholder="Пароль"
+                       required="required"
+                       v-model="registration.password"
+                >
+            </div>
+            <div class="form-group">
+                <input type="password"
+                       class="form-control"
+                       placeholder="Подтверждение пароля"
+                       required="required"
+                       v-model="registration.passwordConfirm"
+                >
+            </div>
+            <br>
+            <div class="form-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Имя"
+                       required="required"
+                       v-model="registration.firstName"
+                >
+            </div>
+            <div class="form-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Фамилия"
+                       required="required"
+                       v-model="registration.lastName"
+                >
+            </div>
+            <div class="form-group">
+                <input type="email"
+                       class="form-control"
+                       placeholder="E-Mail"
+                       required="required"
+                       v-model="registration.email"
+                >
+            </div>
+            <br>
+            <div class="form-group">
+                <span>Роль: </span>
+                <select v-model="registration.role">
+                    <option v-for="role in allRoles" v-bind:value="role">
+                        {{ getHumanReadableRole(role) }}
+                    </option>
+                </select>
+            </div>
+            <br>
+            <div class="form-group">
+                <button class="btn btn-primary btn-block"
+                        @click="createUser"
+                        :disabled="success"
+                >Создать пользователя
+                </button>
+            </div>
+        </div>
+
+        <div class="alert alert-primary" authorities="alert" align="center" v-if="success">
+            Пользователь был создан успешно.
+        </div>
+
+        <div class="alert alert-danger" authorities="alert" align="center" v-if="error">Что-то пошло не так. Попробуйте
+            позже
+        </div>
+
+        <div class="alert alert-danger" authorities="alert" align="center" v-if="error && errorMessage">Error: {{
+            errorMessage }}
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            roles: [],
+            allRoles: [],
+
+            registration: {
+                login: null,
+                password: null,
+                passwordConfirm: null,
+                firstName: null,
+                lastName: null,
+                email: null,
+                address: null,
+                role: null
+            },
+
+            success: false,
+            error: false,
+            errorMessage: null,
+
+            logoutSuccess: false,
+            REDIRECT_TIMEOUT: 3,
+            redirectTimeout: 3
+        },
+        beforeCreate() {
+            axios.get("api/user/roles")
+                .then(response => {
+                    this.roles = response.data.roles
+                })
+            axios.get("api/user/role/all")
+                .then(response => {
+                    this.allRoles = response.data.roles
+                    this.allRoles.splice(this.allRoles.indexOf("ROLE_CUSTOMER"), 1)
+                    this.allRoles.splice(this.allRoles.indexOf("ROLE_ANONYMOUS"), 1)
+                })
+        },
+        methods: {
+            createUser() {
+                if (this.registration.password === this.registration.passwordConfirm) {
+                    axios.post("/api/user/registerByAdmin", this.registration)
+                        .then(response => {
+                            if (response.status === 200) {
+                                this.error = false
+                                this.success = true
+                                setTimeout(() => this.success = false, 3000)
+
+                                this.registration.login = null
+                                this.registration.password = null
+                                this.registration.passwordConfirm = null
+                                this.registration.firstName = null
+                                this.registration.lastName = null
+                                this.registration.email = null
+                                this.registration.address = null
+                                this.registration.role = null
+                            } else {
+                                this.error = true
+                                this.errorMessage = response.data
+                            }
+                        })
+                        .catch(err => this.error = true)
+                } else {
+                    this.error = true
+                    this.errorMessage = "Пароли не совпадают"
+                }
+            },
+            getHumanReadableRole(role) {
+                switch (role) {
+                    case "ROLE_ADMIN":
+                        return "Администратор"
+
+                    case "ROLE_CUSTOMER":
+                        return "Покупатель"
+
+                    case "ROLE_SUPPLIER":
+                        return "Поставщик"
+
+                    case "ROLE_DELIVER":
+                        return "Курьер"
+
+                    case "ROLE_ANONYMOUS":
+                        return "Аноним"
+                }
+            },
+            logOut() {
+                axios.post("/api/user/logout")
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.logoutSuccess = true
+                            this.error = false
+
+                            setInterval(() => {
+                                this.redirectTimeout--
+                                document.getElementById('redirect-progress-bar').style.width =
+                                    ((this.REDIRECT_TIMEOUT - this.redirectTimeout) / this.REDIRECT_TIMEOUT) * 100 + '%';
+                            }, 1000);
+
+                            setTimeout(() => window.location.href = "/login.html",
+                                this.REDIRECT_TIMEOUT * 1000)
+                        } else {
+                            this.error = true
+                        }
+                    })
+                    .catch(err => this.error = true)
+            },
+        }
+    })
+</script>
+</html>

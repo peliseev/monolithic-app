@@ -5,7 +5,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -45,7 +47,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+    public User loadUserByUsername(String name) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(name);
         if (user == null) {
             throw new UsernameNotFoundException(String.format("Doesn't have user with %s", name));
@@ -53,9 +55,14 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    public User logIn(HttpServletRequest request, HttpServletResponse response, LogInView logInView) {
+    public boolean isPasswordValid(String login, String password) {
+        User user = userRepository.findByUsername(login);
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    public User logIn(HttpServletRequest request, HttpServletResponse response, String login, String password) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(logInView.getLogin(), logInView.getPassword())
+                new UsernamePasswordAuthenticationToken(login, password)
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         rememberMeServices.onLoginSuccess(request, response, authentication);
@@ -68,7 +75,7 @@ public class UserService implements UserDetailsService {
         SecurityContextHolder.clearContext();
     }
 
-    public void register(UserView registrationData) throws UserAlreadyExistException, PasswordDoestMatchException {
+    public void register(UserView registrationData, EUserRole userRole) throws UserAlreadyExistException, PasswordDoestMatchException {
         String login = registrationData.getLogin();
         User userFromDB = userRepository.findByUsername(login);
         if (userFromDB != null) {
@@ -77,41 +84,46 @@ public class UserService implements UserDetailsService {
         if (!Objects.equals(registrationData.getPassword(), registrationData.getPasswordConfirm())) {
             throw new PasswordDoestMatchException("Passwords doesn't match!");
         }
-        userRepository.save(getUser(registrationData));
+        userRepository.save(getUser(registrationData, userRole));
     }
 
-    private User getUser(UserView userView) {
+    private User getUser(UserView userView, EUserRole userRole) {
         User user = new User();
 
         user.setPassword(passwordEncoder.encode(userView.getPassword()));
+        user.setPasswordMustBeChanged(false);
         user.setAddress(userView.getAddress());
         user.setEmail(userView.getEmail());
         user.setFirstName(userView.getFirstName());
         user.setLastName(userView.getFirstName());
         user.setUsername(userView.getLogin());
-        user.setRoles(Collections.singleton(roleRepository.findByName(EUserRole.ROLE_CUSTOMER)));
+        user.setRoles(Collections.singleton(roleRepository.findByName(userRole)));
 
         return user;
     }
 
-    public List<UserViewForAdmin> getUsers() {
-        List<UserViewForAdmin> usersResult = new ArrayList<>();
+    public Set<String> getRoles() {
+        return roleRepository.findAll().stream().map(UserRole::getAuthority).collect(Collectors.toSet());
+    }
+
+    public List<UserViewForAdminResponse> getUsers() {
+        List<UserViewForAdminResponse> usersResult = new ArrayList<>();
         for (User userFromDb : userRepository.findAll()) {
             usersResult.add(convertUserFromDbToView(userFromDb));
         }
         return usersResult;
     }
 
-    private UserViewForAdmin convertUserFromDbToView(User userFromDb) {
-        UserViewForAdmin userViewForAdmin = new UserViewForAdmin();
-        userViewForAdmin.setId(userFromDb.getId());
-        userViewForAdmin.setLogin(userFromDb.getUsername());
-        userViewForAdmin.setFirstName(userFromDb.getFirstName());
-        userViewForAdmin.setLastName(userFromDb.getLastName());
-        userViewForAdmin.setEmail(userFromDb.getEmail());
-        userViewForAdmin.setAddress(userFromDb.getAddress());
-        userViewForAdmin.setRoles(convertRolesFromDbToView(userFromDb));
-        return userViewForAdmin;
+    private UserViewForAdminResponse convertUserFromDbToView(User userFromDb) {
+        UserViewForAdminResponse userViewForAdminResponse = new UserViewForAdminResponse();
+        userViewForAdminResponse.setId(userFromDb.getId());
+        userViewForAdminResponse.setLogin(userFromDb.getUsername());
+        userViewForAdminResponse.setFirstName(userFromDb.getFirstName());
+        userViewForAdminResponse.setLastName(userFromDb.getLastName());
+        userViewForAdminResponse.setEmail(userFromDb.getEmail());
+        userViewForAdminResponse.setAddress(userFromDb.getAddress());
+        userViewForAdminResponse.setRoles(convertRolesFromDbToView(userFromDb));
+        return userViewForAdminResponse;
     }
 
     private List<EUserRole> convertRolesFromDbToView(User userFromDb) {
@@ -122,9 +134,16 @@ public class UserService implements UserDetailsService {
         return userRolesResult;
     }
 
-    public void changePassword(Integer userId, String newPassword) {
+    public void resetPassword(Integer userId) {
         User user = userRepository.findById(userId).get();
+        user.setPasswordMustBeChanged(true);
+        userRepository.save(user);
+    }
+
+    public void changePassword(String login, String newPassword) {
+        User user = userRepository.findByUsername(login);
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordMustBeChanged(false);
         userRepository.save(user);
     }
 

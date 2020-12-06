@@ -25,8 +25,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="adminPanel.html" v-if="roles.includes('ROLE_ADMIN')">Панель
-                        администратора</a>
+                    <a class="nav-link" href="users.html" v-if="roles.includes('ROLE_ADMIN')">Пользователи</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registrationByAdmin.html" v-if="roles.includes('ROLE_ADMIN')">Создание пользователя</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="shop.html" v-if="roles.includes('ROLE_CUSTOMER')">Магазин</a>
@@ -67,6 +69,11 @@
     </template>
 
     <div class="container d-flex flex-column">
+        <br>
+        <div v-if="orders.length === 0">
+            <h4>Заказы на доставку отсутствуют</h4>
+        </div>
+
         <div class="card my-4" v-for="order in orders" :key="order.id">
             <div class="card-header d-flex justify-content-between">
                 <h2 class="mb-0">
@@ -161,22 +168,19 @@
                 switch (order.status) {
                     case "ORDER_PAID":
                         return "alert-success"
-                        break;
+
                     case "ORDER_COMING":
                         return "alert-info"
-                        break;
+
                     case "ORDER_DELIVERED":
                         return "alert-dark"
-                        break;
-                    default:
-                        break;
                 }
             },
             carry(order) {
                 axios.post("/api/delivery/order/" + order.id + "/carry")
                     .then(response => {
                         console.log(response)
-                        if (response.status == 200) {
+                        if (response.status === 200) {
                             order.status = response.data.orderStatus;
                             order.statusText = response.data.orderStatusText;
                             order.courierFullName = response.data.currierName;
@@ -188,7 +192,7 @@
                 axios.post("/api/delivery/order/" + order.id + "/deliver")
                     .then(response => {
                         console.log(response)
-                        if (response.status == 200) {
+                        if (response.status === 200) {
                             order.status = response.data.orderStatus;
                             order.statusText = response.data.orderStatusText;
                         }
